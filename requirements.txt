@@ -1,0 +1,2 @@
+# Dependencias de Python del proyecto
+psycopg[binary]==3.3.6

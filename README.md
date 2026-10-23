@@ -6,7 +6,7 @@ Proyecto 2 del curso de Bases de Datos (TEC, ATI). Propuesta técnica y su imple
 
 - Docker Desktop con Docker Compose v2 o superior.
 - Git.
-- Python 3.14 (scripts de concurrencia y backend).
+- Python 3.14 (aplicación web, pruebas de la interfaz y de concurrencia).
 
 ## Levantar la base de datos
 
@@ -85,6 +85,26 @@ docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiti
 
 El primero corre las 4 consultas analíticas y sus comprobaciones. El segundo muestra los planes de `EXPLAIN (ANALYZE, BUFFERS)` sin y con los índices, y al final deja los índices creados.
 
+### Aplicación web
+
+Con la base inicializada y los datos cargados:
+
+```powershell
+py -m pip install -r requirements.txt
+py -m uvicorn app.main:app --port 8000
+```
+
+Abrir `http://127.0.0.1:8000` e iniciar sesión con uno de los usuarios de demostración. Cada rol ve solo sus pantallas: cartelera y compra (cliente), taquilla, puerta, reportes (contador) y panel de administración.
+
+Pruebas de la interfaz con Playwright, con la aplicación corriendo:
+
+```powershell
+py -m playwright install chromium
+py -m pytest app/tests -v
+```
+
+El guion de la demostración, paso a paso según la pauta de revisión, está en [docs/documento/11_guia.md](docs/documento/11_guia.md).
+
 ### Reiniciar desde cero
 
 Borra el volumen con los datos y vuelve a crear la base vacía:
@@ -104,7 +124,7 @@ docker compose up -d
 | `docs/trazabilidad_rn.md` | Matriz RN-01..RN-20, roles y bitácoras |
 | `docs/convenciones.md` | Convención de nombres y estilo |
 | `db/` | Scripts SQL: DDL, funciones, datos de prueba, pruebas y consultas analíticas |
-| `app/` | Backend (FastAPI) y GUI |
+| `app/` | Aplicación web: backend FastAPI, plantillas, estilos y pruebas de la interfaz |
 | `scripts/` | Pruebas de concurrencia y utilidades |
 
 ## Convención de commits

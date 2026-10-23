@@ -197,6 +197,16 @@ bd_gb_por_copia = sum(bytes_una_copia(t, por_mes[t] * en_linea) if TABLAS[t][2] 
 logs_caliente_gb = bitacoras_comprimidas(en_linea)
 logs_archivo_gb = sum(bitacoras_comprimidas(max(0, m - en_linea)) for m in range(1, meses_c + 1)) / meses_c
 
+
+def gb_respaldos_retenidos(meses):
+    """GB guardados tras `meses` respaldos completos mensuales (sin índices, comprimidos)."""
+    return sum(sum(bytes_una_copia(t, filas(t, m), False) for t in TABLAS)
+               for m in range(1, meses + 1)) / S["compresion_respaldo"] / GB
+
+
+# Respaldos mensuales en la capa de archivo: promedio guardado durante el horizonte de costos
+respaldos_promedio_gb = sum(gb_respaldos_retenidos(m) for m in range(1, meses_c + 1)) / meses_c
+
 # ---------------------------------------------------------------------------
 # Salida
 # ---------------------------------------------------------------------------
@@ -261,6 +271,7 @@ tabla("Resumen de almacenamiento", ["Concepto", "Valor"], [
     [f"En niveles: BD con {en_linea} meses de bitácoras (TB)", n(tb_niveles_bd, 2)],
     ["En niveles: archivo comprimido de bitácoras (TB)", n(tb_niveles_archivo, 2)],
     ["Referencia: respaldos completos mensuales retenidos 5 años, comprimidos (TB)", n(tb_respaldos, 2)],
+    [f"Respaldos mensuales retenidos, promedio de {S['anios_costos']} años (GB)", n(respaldos_promedio_gb)],
     ["Acumulado con copias frente a los 45 TB del enunciado", n(tb_anio[-1] / REFERENCIA_TB, 2) + " veces"],
 ])
 tabla("Volúmenes para el estimado de costos (hoja Supuestos)", ["Celda", "Concepto", "Valor", "Unidad"], [

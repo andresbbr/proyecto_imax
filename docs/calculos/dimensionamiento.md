@@ -1,6 +1,6 @@
 # Resultados del dimensionamiento
 
-Generado el 2026-10-22 con `py docs/calculos/dimensionamiento.py`.
+Generado el 2026-10-23 con `py docs/calculos/dimensionamiento.py`.
 
 ## Supuestos
 
@@ -182,6 +182,7 @@ Generado el 2026-10-22 con `py docs/calculos/dimensionamiento.py`.
 | En niveles: BD con 13 meses de bitácoras (TB) | 2.69 |
 | En niveles: archivo comprimido de bitácoras (TB) | 0.16 |
 | Referencia: respaldos completos mensuales retenidos 5 años, comprimidos (TB) | 11.02 |
+| Respaldos mensuales retenidos, promedio de 3 años (GB) | 1,430 |
 | Acumulado con copias frente a los 45 TB del enunciado | 0.13 veces |
 
 ## Volúmenes para el estimado de costos (hoja Supuestos)

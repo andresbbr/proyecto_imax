@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block titulo %}Puerta{% endblock %}
+{% block contenido %}
+<h1>Control de acceso en puerta</h1>
+<form method="post" action="/puerta/validar" class="formulario angosto">
+  <label>Puerta
+    <select name="id_puerta" required>
+      {% for p in puertas %}
+      <option value="{{ p.id_puerta }}" {% if p.id_puerta == id_puerta %}selected{% endif %}>
+        {{ p.sede }} · {{ p.sala }} ({{ p.codigo }}){% if p.proxima_funcion %} · próxima: {{ p.proxima_funcion }}{% endif %}
+      </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Código QR leído <input name="codigo_qr" required autofocus autocomplete="off"></label>
+  <button type="submit">Validar entrada</button>
+</form>
+
+{% if resultado %}
+  <div class="resultado-puerta {{ 'exitoso' if resultado.resultado == 'exitoso' else 'rechazado' }}" id="resultado">
+    {{ resultado.mensaje }}
+  </div>
+  {% if resultado.resultado == 'exitoso' and 'documento' in resultado.mensaje %}
+  <form method="post" action="/puerta/incidencia" class="fila-form">
+    <input type="hidden" name="id_puerta" value="{{ id_puerta }}">
+    <input type="hidden" name="codigo_qr" value="{{ codigo_qr }}">
+    <input type="hidden" name="detalle" value="No presentó el documento de la tarifa especial">
+    <button type="submit" class="peligro">Registrar incidencia: no presentó el documento</button>
+  </form>
+  {% endif %}
+{% endif %}
+{% endblock %}

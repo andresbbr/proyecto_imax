@@ -1,0 +1,379 @@
+Pruebas de restricciones y permisos
+Fecha: 2026-10-22 20:01:37 -0600
+Base: PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu
+Comando: docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/tests/01_restricciones.sql
+
+SET
+BEGIN
+CREATE TABLE
+CREATE FUNCTION
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+INSERT 0 40
+INSERT 0 13
+SET
+psql:/db/tests/01_restricciones.sql:249: WARNING:  OK: rol_administrador no puede modificar transaccion_log (permission denied for table transaccion_log)
+DO
+RESET
+  n  |                              prueba                              |  esperado   |  obtenido   | resultado |                                detalle                                 
+-----+------------------------------------------------------------------+-------------+-------------+-----------+------------------------------------------------------------------------
+   1 | país válido                                                      | acepta      | acepta      | OK        | 
+   2 | ciudad válida                                                    | acepta      | acepta      | OK        | 
+   3 | sede válida                                                      | acepta      | acepta      | OK        | 
+   4 | sala válida                                                      | acepta      | acepta      | OK        | 
+   5 | zona válida                                                      | acepta      | acepta      | OK        | 
+   6 | asientos válidos                                                 | acepta      | acepta      | OK        | 
+   7 | puerta válida                                                    | acepta      | acepta      | OK        | 
+   8 | película válida                                                  | acepta      | acepta      | OK        | 
+   9 | función válida                                                   | acepta      | acepta      | OK        | 
+  10 | tarifa válida                                                    | acepta      | acepta      | OK        | 
+  11 | promoción 2x1 válida                                             | acepta      | acepta      | OK        | 
+  12 | usuario cliente válido                                           | acepta      | acepta      | OK        | 
+  13 | usuario administrador válido                                     | acepta      | acepta      | OK        | 
+  14 | orden en línea con total coherente                               | acepta      | acepta      | OK        | 
+  15 | líneas de la orden                                               | acepta      | acepta      | OK        | 
+  16 | bloqueo temporal de un asiento                                   | acepta      | acepta      | OK        | 
+  17 | segundo bloqueo del mismo asiento en la misma función            | rechaza     | rechaza     | OK        | duplicate key value violates unique constraint "ocupacion_asiento_pkey
+  18 | el bloqueo pasa a vendido                                        | acepta      | acepta      | OK        | 
+  19 | venta de un asiento ya vendido                                   | rechaza     | rechaza     | OK        | duplicate key value violates unique constraint "ocupacion_asiento_pkey
+  20 | pago rechazado con motivo                                        | acepta      | acepta      | OK        | 
+  21 | pago aprobado con tarjeta                                        | acepta      | acepta      | OK        | 
+  22 | segundo pago aprobado de la misma orden                          | rechaza     | rechaza     | OK        | duplicate key value violates unique constraint "uq_pago_orden_aprobado
+  23 | pago aprobado sin código de autorización                         | rechaza     | rechaza     | OK        | new row for relation "pago" violates check constraint "ck_pago_aprobad
+  24 | pago rechazado sin motivo                                        | rechaza     | rechaza     | OK        | new row for relation "pago" violates check constraint "ck_pago_rechaza
+  25 | últimos 4 dígitos con letras                                     | rechaza     | rechaza     | OK        | new row for relation "pago" violates check constraint "ck_pago_ultimos
+  26 | últimos 4 dígitos sin marca                                      | rechaza     | rechaza     | OK        | new row for relation "pago" violates check constraint "ck_pago_tarjeta
+  27 | pago con monto cero                                              | rechaza     | rechaza     | OK        | new row for relation "pago" violates check constraint "ck_pago_monto"
+  28 | boleto válido                                                    | acepta      | acepta      | OK        | 
+  29 | boleto con QR repetido                                           | rechaza     | rechaza     | OK        | duplicate key value violates unique constraint "uq_boleto_codigo_qr"
+  30 | boleto sin línea de orden                                        | rechaza     | rechaza     | OK        | insert or update on table "boleto" violates foreign key constraint "bo
+  31 | otra orden para el mismo asiento                                 | acepta      | acepta      | OK        | 
+  32 | segundo boleto vigente del mismo asiento y función               | rechaza     | rechaza     | OK        | duplicate key value violates unique constraint "uq_boleto_funcion_asie
+  33 | estado de boleto inválido                                        | rechaza     | rechaza     | OK        | new row for relation "boleto" violates check constraint "ck_boleto_est
+  34 | primer ingreso del boleto                                        | acepta      | acepta      | OK        | 
+  35 | segundo ingreso del mismo boleto                                 | rechaza     | rechaza     | OK        | duplicate key value violates unique constraint "checkin_pkey"
+  36 | reembolso válido                                                 | acepta      | acepta      | OK        | 
+  37 | segundo reembolso del mismo boleto                               | rechaza     | rechaza     | OK        | duplicate key value violates unique constraint "uq_reembolso_boleto"
+  38 | boleto anulado libera el asiento para un boleto nuevo            | acepta      | acepta      | OK        | 
+  39 | tasa de impuesto mayor a 1                                       | rechaza     | rechaza     | OK        | new row for relation "pais" violates check constraint "ck_pais_tasa_im
+  40 | asiento con número 0                                             | rechaza     | rechaza     | OK        | new row for relation "asiento" violates check constraint "ck_asiento_n
+  41 | asiento repetido en la zona                                      | rechaza     | rechaza     | OK        | duplicate key value violates unique constraint "uq_asiento_zona_fila_n
+  42 | película sin sinopsis (RN-02)                                    | rechaza     | rechaza     | OK        | null value in column "sinopsis" of relation "pelicula" violates not-nu
+  43 | película con duración 0                                          | rechaza     | rechaza     | OK        | new row for relation "pelicula" violates check constraint "ck_pelicula
+  44 | función que termina antes de empezar                             | rechaza     | rechaza     | OK        | new row for relation "funcion" violates check constraint "ck_funcion_h
+  45 | función con estado inválido                                      | rechaza     | rechaza     | OK        | new row for relation "funcion" violates check constraint "ck_funcion_e
+  46 | función en una sala inexistente (FK)                             | rechaza     | rechaza     | OK        | insert or update on table "funcion" violates foreign key constraint "f
+  47 | tarifa con precio negativo                                       | rechaza     | rechaza     | OK        | new row for relation "tarifa" violates check constraint "ck_tarifa_pre
+  48 | tarifa repetida                                                  | rechaza     | rechaza     | OK        | duplicate key value violates unique constraint "uq_tarifa_combinacion"
+  49 | promoción 2x1 con porcentaje                                     | rechaza     | rechaza     | OK        | new row for relation "promocion" violates check constraint "ck_promoci
+  50 | orden con total incoherente (RN-08)                              | rechaza     | rechaza     | OK        | new row for relation "orden" violates check constraint "ck_orden_total
+  51 | orden con descuento mayor al subtotal                            | rechaza     | rechaza     | OK        | new row for relation "orden" violates check constraint "ck_orden_descu
+  52 | orden en línea sin cliente                                       | rechaza     | rechaza     | OK        | new row for relation "orden" violates check constraint "ck_orden_respo
+  53 | orden pagada sin fecha de pago                                   | rechaza     | rechaza     | OK        | new row for relation "orden" violates check constraint "ck_orden_pagad
+  54 | línea con descuento mayor al precio                              | rechaza     | rechaza     | OK        | new row for relation "orden_detalle" violates check constraint "ck_ord
+  55 | bloqueo sin fecha de expiración                                  | rechaza     | rechaza     | OK        | new row for relation "ocupacion_asiento" violates check constraint "ck
+  56 | venta sin orden                                                  | rechaza     | rechaza     | OK        | new row for relation "ocupacion_asiento" violates check constraint "ck
+  57 | reserva administrativa sin orden                                 | acepta      | acepta      | OK        | 
+  58 | correo sin arroba                                                | rechaza     | rechaza     | OK        | new row for relation "usuario" violates check constraint "ck_usuario_e
+  59 | evento de bitácora inválido                                      | rechaza     | rechaza     | OK        | new row for relation "transaccion_log_2026_10" violates check constrai
+  60 | evento de bitácora válido en su partición mensual                | acepta      | acepta      | OK        | 
+  61 | rol_cliente sin UPDATE en bitacora.transaccion_log               | sin permiso | sin permiso | OK        | 
+  62 | rol_cliente sin UPDATE en bitacora.asiento_auditoria_log         | sin permiso | sin permiso | OK        | 
+  63 | rol_cliente sin UPDATE en bitacora.acceso_puerta_log             | sin permiso | sin permiso | OK        | 
+  64 | rol_cliente sin UPDATE en bitacora.admin_operacion_audit         | sin permiso | sin permiso | OK        | 
+  65 | rol_cliente sin DELETE en bitacora.transaccion_log               | sin permiso | sin permiso | OK        | 
+  66 | rol_cliente sin DELETE en bitacora.asiento_auditoria_log         | sin permiso | sin permiso | OK        | 
+  67 | rol_cliente sin DELETE en bitacora.acceso_puerta_log             | sin permiso | sin permiso | OK        | 
+  68 | rol_cliente sin DELETE en bitacora.admin_operacion_audit         | sin permiso | sin permiso | OK        | 
+  69 | rol_taquillero sin UPDATE en bitacora.transaccion_log            | sin permiso | sin permiso | OK        | 
+  70 | rol_taquillero sin UPDATE en bitacora.asiento_auditoria_log      | sin permiso | sin permiso | OK        | 
+  71 | rol_taquillero sin UPDATE en bitacora.acceso_puerta_log          | sin permiso | sin permiso | OK        | 
+  72 | rol_taquillero sin UPDATE en bitacora.admin_operacion_audit      | sin permiso | sin permiso | OK        | 
+  73 | rol_taquillero sin DELETE en bitacora.transaccion_log            | sin permiso | sin permiso | OK        | 
+  74 | rol_taquillero sin DELETE en bitacora.asiento_auditoria_log      | sin permiso | sin permiso | OK        | 
+  75 | rol_taquillero sin DELETE en bitacora.acceso_puerta_log          | sin permiso | sin permiso | OK        | 
+  76 | rol_taquillero sin DELETE en bitacora.admin_operacion_audit      | sin permiso | sin permiso | OK        | 
+  77 | rol_operador_puerta sin UPDATE en bitacora.transaccion_log       | sin permiso | sin permiso | OK        | 
+  78 | rol_operador_puerta sin UPDATE en bitacora.asiento_auditoria_log | sin permiso | sin permiso | OK        | 
+  79 | rol_operador_puerta sin UPDATE en bitacora.acceso_puerta_log     | sin permiso | sin permiso | OK        | 
+  80 | rol_operador_puerta sin UPDATE en bitacora.admin_operacion_audit | sin permiso | sin permiso | OK        | 
+  81 | rol_operador_puerta sin DELETE en bitacora.transaccion_log       | sin permiso | sin permiso | OK        | 
+  82 | rol_operador_puerta sin DELETE en bitacora.asiento_auditoria_log | sin permiso | sin permiso | OK        | 
+  83 | rol_operador_puerta sin DELETE en bitacora.acceso_puerta_log     | sin permiso | sin permiso | OK        | 
+  84 | rol_operador_puerta sin DELETE en bitacora.admin_operacion_audit | sin permiso | sin permiso | OK        | 
+  85 | rol_contador sin UPDATE en bitacora.transaccion_log              | sin permiso | sin permiso | OK        | 
+  86 | rol_contador sin UPDATE en bitacora.asiento_auditoria_log        | sin permiso | sin permiso | OK        | 
+  87 | rol_contador sin UPDATE en bitacora.acceso_puerta_log            | sin permiso | sin permiso | OK        | 
+  88 | rol_contador sin UPDATE en bitacora.admin_operacion_audit        | sin permiso | sin permiso | OK        | 
+  89 | rol_contador sin DELETE en bitacora.transaccion_log              | sin permiso | sin permiso | OK        | 
+  90 | rol_contador sin DELETE en bitacora.asiento_auditoria_log        | sin permiso | sin permiso | OK        | 
+  91 | rol_contador sin DELETE en bitacora.acceso_puerta_log            | sin permiso | sin permiso | OK        | 
+  92 | rol_contador sin DELETE en bitacora.admin_operacion_audit        | sin permiso | sin permiso | OK        | 
+  93 | rol_administrador sin UPDATE en bitacora.transaccion_log         | sin permiso | sin permiso | OK        | 
+  94 | rol_administrador sin UPDATE en bitacora.asiento_auditoria_log   | sin permiso | sin permiso | OK        | 
+  95 | rol_administrador sin UPDATE en bitacora.acceso_puerta_log       | sin permiso | sin permiso | OK        | 
+  96 | rol_administrador sin UPDATE en bitacora.admin_operacion_audit   | sin permiso | sin permiso | OK        | 
+  97 | rol_administrador sin DELETE en bitacora.transaccion_log         | sin permiso | sin permiso | OK        | 
+  98 | rol_administrador sin DELETE en bitacora.asiento_auditoria_log   | sin permiso | sin permiso | OK        | 
+  99 | rol_administrador sin DELETE en bitacora.acceso_puerta_log       | sin permiso | sin permiso | OK        | 
+ 100 | rol_administrador sin DELETE en bitacora.admin_operacion_audit   | sin permiso | sin permiso | OK        | 
+ 101 | rol_cliente sin UPDATE en cine.tarifa                            | sin permiso | sin permiso | OK        | 
+ 102 | rol_cliente sin INSERT en cine.sala                              | sin permiso | sin permiso | OK        | 
+ 103 | rol_taquillero sin UPDATE en cine.tarifa                         | sin permiso | sin permiso | OK        | 
+ 104 | rol_taquillero sin UPDATE en cine.sala                           | sin permiso | sin permiso | OK        | 
+ 105 | rol_taquillero sin INSERT en cine.funcion                        | sin permiso | sin permiso | OK        | 
+ 106 | rol_operador_puerta sin SELECT en cine.pago                      | sin permiso | sin permiso | OK        | 
+ 107 | rol_cliente sin SELECT en cine.usuario                           | sin permiso | sin permiso | OK        | 
+ 108 | rol_cliente con SELECT en cine.funcion                           | con permiso | con permiso | OK        | 
+ 109 | rol_contador con SELECT en cine.pago                             | con permiso | con permiso | OK        | 
+ 110 | rol_contador sin UPDATE en cine.tarifa                           | sin permiso | sin permiso | OK        | 
+ 111 | rol_administrador con UPDATE en cine.tarifa                      | con permiso | con permiso | OK        | 
+ 112 | rol_administrador con INSERT en cine.sala                        | con permiso | con permiso | OK        | 
+ 113 | rol_administrador con SELECT en bitacora.admin_operacion_audit   | con permiso | con permiso | OK        | 
+
+ pruebas | correctas | fallidas 
+---------+-----------+----------
+     113 |       113 |        0
+
+DO
+ROLLBACK
+
+Código de salida de psql: 0

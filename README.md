@@ -28,13 +28,21 @@ docker exec imax_db psql -U imax_owner -d imax -c "select version();"
 
 Conexión desde el host (DBeaver, pgAdmin, `psql`): `localhost:5433`, base `imax`, usuario `imax_owner`, contraseña la del `.env`.
 
-### Ejecutar scripts SQL
+### Crear las tablas
 
-La carpeta `db/` está montada en solo lectura dentro del contenedor en `/db`:
+La carpeta `db/` está montada en solo lectura dentro del contenedor en `/db`. El script `db/init.sql` crea los esquemas, las tablas, las bitácoras particionadas, los índices, los roles y los datos base. Se puede ejecutar las veces que se quiera: cada vez vuelve a crear todo desde cero.
 
 ```powershell
-docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/ddl/01_schema.sql
+docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/init.sql
 ```
+
+### Pruebas de restricciones
+
+```powershell
+docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/tests/01_restricciones.sql
+```
+
+Las pruebas corren dentro de una transacción que se revierte al final, así que no dejan datos.
 
 ### Reiniciar desde cero
 

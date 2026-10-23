@@ -26,11 +26,13 @@ begin
     )
     select count(*), array_agg(distinct id_orden) into v_liberados, v_ordenes from borrados;
 
+    -- La orden expira cuando ya no le queda ningún bloqueo vigente
     update orden o
     set estado = 'expirada'
     where o.id_orden = any (v_ordenes)
       and o.estado = 'pendiente'
-      and not exists (select 1 from ocupacion_asiento x where x.id_orden = o.id_orden);
+      and not exists (select 1 from ocupacion_asiento x
+                      where x.id_orden = o.id_orden and (x.estado <> 'bloqueado' or x.expira_en > now()));
 
     return v_liberados;
 end $$;

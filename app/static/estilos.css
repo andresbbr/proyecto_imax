@@ -55,3 +55,6 @@ input, select, textarea { padding: .35rem; font-size: .95rem; }
 .codigo { font-family: monospace; font-size: .8rem; word-break: break-all; }
 .resultado-puerta { font-size: 1.5rem; padding: 1.5rem; border-radius: 8px; text-align: center; color: #fff; }
 .resultado-puerta.exitoso { background: #2e9e44; } .resultado-puerta.rechazado { background: #c0392b; }
+fieldset { border: 1px solid #ddd; display: flex; flex-wrap: wrap; gap: .3rem 1rem; }
+.formulario label.opcion { flex-direction: row; align-items: center; gap: .3rem; }
+td input[type=number] { width: 6rem; }

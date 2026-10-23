@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block titulo %}Panel de administración{% endblock %}
+{% block contenido %}
+<h1>Panel de administración</h1>
+<div class="tarjetas">
+  <div class="tarjeta">Órdenes pagadas hoy<b>{{ ventas.ordenes }}</b></div>
+  <div class="tarjeta">Ventas de hoy (USD)<b>{{ ventas.total | dinero }}</b></div>
+</div>
+
+<h2>Ocupación de las próximas funciones</h2>
+<table>
+  <tr><th>Película</th><th>Sede</th><th>Sala</th><th>Inicio</th><th>Ocupados</th><th>Capacidad</th><th>%</th></tr>
+  {% for f in proximas %}
+  <tr><td>{{ f.titulo }}</td><td>{{ f.sede }}</td><td>{{ f.sala }}</td><td>{{ f.inicio | hora }}</td>
+      <td>{{ f.ocupados }}</td><td>{{ f.capacidad }}</td>
+      <td>{{ '%.1f' % (100 * f.ocupados / f.capacidad) if f.capacidad else 0 }}</td></tr>
+  {% else %}
+  <tr><td colspan="7">No hay funciones programadas.</td></tr>
+  {% endfor %}
+</table>
+
+<h2>Top 5 de la última semana</h2>
+<table>
+  <tr><th>Película</th><th>Boletos vendidos</th></tr>
+  {% for t in top5 %}<tr><td>{{ t.titulo }}</td><td>{{ t.boletos_vendidos }}</td></tr>{% endfor %}
+</table>
+
+<h2>Métodos de pago</h2>
+<table>
+  <tr><th>Método</th><th>Pagos</th><th>% pagos</th><th>Monto (USD)</th><th>% monto</th></tr>
+  {% for m in metodos %}
+  <tr><td>{{ m.metodo_pago }}</td><td>{{ m.pagos }}</td><td>{{ m.porcentaje_pagos }}</td>
+      <td>{{ m.monto | dinero }}</td><td>{{ m.porcentaje_monto }}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

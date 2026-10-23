@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block titulo %}Boletos{% endblock %}
+{% block contenido %}
+<h1>Boletos: anulaciones, reembolsos y cortesías</h1>
+<form method="get" action="/admin/boletos" class="filtros">
+  <label>Código QR <input name="qr" value="{{ qr }}" size="40" required></label>
+  <button type="submit">Buscar</button>
+</form>
+
+{% if boleto %}
+<h2>Boleto {{ boleto.id_boleto }}</h2>
+<table>
+  <tr><th>Película</th><td>{{ boleto.titulo }}</td><th>Función</th><td>{{ boleto.inicio | hora }}</td></tr>
+  <tr><th>Sede y sala</th><td>{{ boleto.sede }} · {{ boleto.sala }}</td><th>Asiento</th><td id="asiento-boleto">{{ boleto.fila }}{{ boleto.numero }} ({{ boleto.zona }})</td></tr>
+  <tr><th>Cliente</th><td>{{ boleto.cliente or 'Venta en taquilla' }}</td><th>Estado</th>
+      <td id="estado-boleto">{{ boleto.estado }}{% if boleto.utilizado %} (utilizado){% endif %}</td></tr>
+</table>
+
+{% if boleto.estado == 'vigente' %}
+<div class="fila-form">
+  <form method="post" action="/admin/boletos/{{ boleto.id_boleto }}/anular" class="formulario">
+    <b>Anular y reembolsar</b>
+    <input type="hidden" name="qr" value="{{ qr }}">
+    <label>Tipo
+      <select name="tipo">
+        <option value="politica">Por política (hasta 2 h antes)</option>
+        <option value="forzado">Reembolso forzado</option>
+      </select>
+    </label>
+    <label>Motivo <input name="motivo" required></label>
+    <button type="submit" class="peligro">Anular boleto</button>
+  </form>
+  <form method="post" action="/admin/boletos/{{ boleto.id_boleto }}/cambiar-asiento" class="formulario">
+    <b>Cambiar de asiento</b>
+    <input type="hidden" name="qr" value="{{ qr }}">
+    <label>Nuevo asiento
+      <select name="id_asiento" required>
+        {% for a in asientos_libres %}<option value="{{ a.id_asiento }}">{{ a.fila }}{{ a.numero }} · {{ a.zona }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Motivo <input name="motivo" required></label>
+    <button type="submit">Cambiar asiento</button>
+  </form>
+</div>
+{% endif %}
+{% endif %}
+
+<h2>Otorgar cortesía</h2>
+<form method="post" action="/admin/cortesia" class="formulario">
+  <div class="fila-form">
+    <label>Función
+      <select name="id_funcion" required>
+        {% for f in funciones %}<option value="{{ f.id_funcion }}">{{ f.titulo }} · {{ f.sede }} · {{ f.sala }} · {{ f.inicio | hora }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Fila <input name="fila" size="3" required></label>
+    <label>Número <input type="number" name="numero" min="1" required></label>
+    <label>Correo del cliente <input type="email" name="email" required></label>
+  </div>
+  <label>Motivo <input name="motivo" required></label>
+  <button type="submit">Otorgar cortesía</button>
+</form>
+{% endblock %}

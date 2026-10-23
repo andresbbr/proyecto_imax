@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block titulo %}Películas{% endblock %}
+{% block contenido %}
+<h1>Películas</h1>
+<h2>Agregar película</h2>
+<form method="post" action="/admin/peliculas" class="formulario">
+  <label>Título <input name="titulo" required></label>
+  <label>Sinopsis <textarea name="sinopsis" rows="3" required></textarea></label>
+  <div class="fila-form">
+    <label>Duración (min) <input type="number" name="duracion_min" min="1" required></label>
+    <label>Clasificación
+      <select name="id_clasificacion" required>
+        {% for c in clasificaciones %}<option value="{{ c.id_clasificacion }}">{{ c.codigo }} · {{ c.descripcion }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Fecha de estreno <input type="date" name="fecha_estreno" required></label>
+  </div>
+  <label>URL del póster <input name="poster_url" required placeholder="https://..."></label>
+  <fieldset>
+    <legend>Géneros</legend>
+    {% for g in generos %}
+    <label class="opcion"><input type="checkbox" name="generos" value="{{ g.id_genero }}"> {{ g.nombre }}</label>
+    {% endfor %}
+  </fieldset>
+  <button type="submit">Agregar a la cartelera</button>
+</form>
+
+<h2>Catálogo</h2>
+<table>
+  <tr><th>Título</th><th>Clasificación</th><th>Duración</th><th>Géneros</th><th>Estreno</th><th>Activa</th></tr>
+  {% for p in peliculas %}
+  <tr><td>{{ p.titulo }}</td><td>{{ p.clasificacion }}</td><td>{{ p.duracion_min }} min</td>
+      <td>{{ p.generos or '' }}</td><td>{{ p.fecha_estreno.strftime('%d/%m/%Y') }}</td><td>{{ 'Sí' if p.es_activa else 'No' }}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

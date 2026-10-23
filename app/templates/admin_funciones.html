@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block titulo %}Funciones{% endblock %}
+{% block contenido %}
+<h1>Funciones</h1>
+<h2>Programar función</h2>
+<p class="detalle">El fin se calcula con la duración de la película más {{ limpieza }} minutos de limpieza. Si se traslapa con otra función de la misma sala, se rechaza.</p>
+<form method="post" action="/admin/funciones" class="formulario">
+  <div class="fila-form">
+    <label>Película
+      <select name="id_pelicula" required>
+        {% for p in peliculas %}<option value="{{ p.id_pelicula }}">{{ p.titulo }} ({{ p.duracion_min }} min)</option>{% endfor %}
+      </select>
+    </label>
+    <label>Sala
+      <select name="id_sala" required>{% for s in salas %}<option value="{{ s.id_sala }}">{{ s.nombre }}</option>{% endfor %}</select>
+    </label>
+    <label>Inicio (hora de Costa Rica) <input type="datetime-local" name="inicio" required></label>
+    <label>Idioma
+      <select name="idioma"><option>Español</option><option>Inglés subtitulado</option></select>
+    </label>
+  </div>
+  <button type="submit">Programar</button>
+</form>
+
+<h2>Funciones vigentes</h2>
+<table>
+  <tr><th>Película</th><th>Sede</th><th>Sala</th><th>Inicio</th><th>Fin</th><th>Idioma</th><th>Estado</th><th></th></tr>
+  {% for f in funciones %}
+  <tr><td>{{ f.titulo }}</td><td>{{ f.sede }}</td><td>{{ f.sala }}</td><td>{{ f.inicio | hora }}</td><td>{{ f.fin | hora('%H:%M') }}</td>
+      <td>{{ f.idioma }}</td><td>{{ f.estado }}</td>
+      <td>
+        {% if f.estado == 'programada' %}
+        <form method="post" action="/admin/funciones/{{ f.id_funcion }}/cancelar" class="fila-form"
+              onsubmit="return confirm('¿Cancelar la función y reembolsar sus boletos?')">
+          <input name="motivo" placeholder="Motivo" required size="12">
+          <button type="submit" class="peligro">Cancelar</button>
+        </form>
+        {% endif %}
+      </td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

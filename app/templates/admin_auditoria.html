@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titulo %}Auditoría{% endblock %}
+{% block contenido %}
+<h1>Auditoría de operaciones manuales (último mes)</h1>
+<form method="get" action="/admin/auditoria" class="filtros">
+  <label>Administrador
+    <select name="admin">
+      <option value="">Todos</option>
+      {% for a in administradores %}<option value="{{ a.id_usuario }}" {% if a.id_usuario == admin %}selected{% endif %}>{{ a.nombre }}</option>{% endfor %}
+    </select>
+  </label>
+  <button type="submit">Filtrar</button>
+</form>
+<table id="auditoria">
+  <tr><th>Fecha y hora</th><th>Responsable</th><th>Rol</th><th>IP</th><th>Operación</th><th>Entidad</th><th>Antes</th><th>Después</th><th>Motivo</th></tr>
+  {% for r in registros %}
+  <tr><td>{{ r.ocurrido_en | hora('%d/%m/%Y %H:%M:%S') }}</td><td>{{ r.responsable }}</td><td>{{ r.rol }}</td><td>{{ r.ip }}</td>
+      <td>{{ r.operacion }}</td><td>{{ r.entidad }} {{ r.id_entidad }}</td>
+      <td class="codigo">{{ r.valores_anteriores | tojson if r.valores_anteriores else '' }}</td>
+      <td class="codigo">{{ r.valores_nuevos | tojson if r.valores_nuevos else '' }}</td><td>{{ r.motivo or '' }}</td></tr>
+  {% else %}
+  <tr><td colspan="9">Sin operaciones en el último mes.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

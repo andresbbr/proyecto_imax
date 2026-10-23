@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titulo %}Salas{% endblock %}
+{% block contenido %}
+<h1>Salas</h1>
+<table>
+  <tr><th>Sede</th><th>Sala</th><th>Formato</th><th>Zonas</th><th>Capacidad</th><th>Ventas activas</th><th>Estado</th><th></th></tr>
+  {% for s in salas %}
+  <tr><td>{{ s.sede }}</td><td>{{ s.nombre }}</td><td>{{ s.formato }}</td><td>{{ s.zonas or '' }}</td><td>{{ s.capacidad }}</td>
+      <td>{{ 'Sí' if s.tiene_ventas else 'No' }}</td><td>{{ 'Activa' if s.es_activa else 'Inactiva' }}</td>
+      <td>
+        <form method="post" action="/admin/salas/{{ s.id_sala }}/activa">
+          <input type="hidden" name="activa" value="{{ 'false' if s.es_activa else 'true' }}">
+          <button type="submit" class="{{ 'peligro' if s.es_activa else 'secundario' }}">{{ 'Desactivar' if s.es_activa else 'Activar' }}</button>
+        </form>
+      </td></tr>
+  {% endfor %}
+</table>
+
+<h2>Crear sala</h2>
+<p class="detalle">Las filas se asignan en orden: primero general, luego preferencial y al final VIP. Se crea una puerta de acceso para la sala.</p>
+<form method="post" action="/admin/salas" class="formulario">
+  <div class="fila-form">
+    <label>Sede
+      <select name="id_sede" required>{% for se in sedes %}<option value="{{ se.id_sede }}">{{ se.nombre }}</option>{% endfor %}</select>
+    </label>
+    <label>Nombre <input name="nombre" required></label>
+    <label>Formato <input name="formato" value="IMAX 2D" required></label>
+  </div>
+  <div class="fila-form">
+    <label>Filas general <input type="number" name="filas_general" min="0" value="6" required></label>
+    <label>Filas preferencial <input type="number" name="filas_preferencial" min="0" value="3" required></label>
+    <label>Filas VIP <input type="number" name="filas_vip" min="0" value="1" required></label>
+    <label>Asientos por fila <input type="number" name="asientos_por_fila" min="1" value="12" required></label>
+  </div>
+  <button type="submit">Crear sala</button>
+</form>
+{% endblock %}

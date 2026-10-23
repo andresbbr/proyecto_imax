@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block titulo %}Matriz de precios{% endblock %}
+{% block contenido %}
+<h1>Matriz de precios (USD)</h1>
+<form method="get" action="/admin/precios" class="filtros">
+  <label>Sede
+    <select name="sede" onchange="this.form.submit()">
+      {% for se in sedes %}<option value="{{ se.id_sede }}" {% if se.id_sede == id_sede %}selected{% endif %}>{{ se.nombre }}</option>{% endfor %}
+    </select>
+  </label>
+</form>
+
+<form method="post" action="/admin/precios">
+  <input type="hidden" name="sede" value="{{ id_sede }}">
+  <table>
+    <tr><th>Zona</th><th>Tipo de entrada</th><th>Entre semana</th><th>Fin de semana</th></tr>
+    {% for f in filas %}
+    <tr><td>{{ f.zona }}</td><td>{{ f.tipo }}</td>
+      {% for dia in ['entre_semana', 'fin_de_semana'] %}
+      <td>{% if f[dia] %}<input type="number" step="0.01" min="0" name="precio_{{ f[dia].id_tarifa }}" value="{{ f[dia].precio }}">{% endif %}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+  <button type="submit">Guardar precios</button>
+</form>
+
+<h2>Promociones</h2>
+<table>
+  <tr><th>Código</th><th>Nombre</th><th>Tipo</th><th>Aplica a</th><th>Día</th><th>Vigencia</th><th>Activa</th></tr>
+  {% for p in promociones %}
+  <tr><td>{{ p.codigo }}</td><td>{{ p.nombre }}</td><td>{{ p.tipo }}{% if p.porcentaje %} ({{ p.porcentaje }} %){% endif %}</td>
+      <td>{{ p.tipo_tarifa or 'Cualquier tarifa' }}</td>
+      <td>{{ ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'][p.dia_semana] if p.dia_semana else 'Todos' }}</td>
+      <td>{{ p.vigente_desde.strftime('%d/%m/%Y') }} a {{ p.vigente_hasta.strftime('%d/%m/%Y') }}</td><td>{{ 'Sí' if p.es_activa else 'No' }}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -89,11 +89,13 @@ Para comprobar que un respaldo completo se puede restaurar, `scripts/respaldo_re
 
 | Medida | Resultado |
 |---|---|
-| Tamaño de la base, con índices | 304 MB |
-| Tamaño del respaldo comprimido | 41 MB |
-| Duración del respaldo | 5 s |
-| Duración de la restauración | 7 s |
+| Tamaño de la base, con índices | 303 MB |
+| Tamaño del respaldo comprimido | 40 MB |
+| Duración del respaldo | 7 s |
+| Duración de la restauración | 9 s |
 | Tablas comparadas | 12 de 12 con las mismas filas (orden, pago, boleto, check-in, reembolso y las 4 bitácoras, entre otras) |
+
+La prueba se hizo con las herramientas cliente de PostgreSQL 18 contra el servidor 16. Por eso `pg_restore` avisa de un parámetro que la versión 16 no conoce (`transaction_timeout`). El aviso no afecta los datos, como muestra la comparación de filas; con las herramientas de la misma versión no aparece.
 
 El respaldo ocupa unas 7 veces menos que la base, porque no copia los índices (se reconstruyen al restaurar) y va comprimido. El dimensionamiento usa una compresión más conservadora, de 3 a 1 sobre los datos sin índices. En producción el respaldo mensual lo hace el servicio administrado, pero el procedimiento de comprobación es el mismo: restaurar en una instancia aparte y comparar.
 

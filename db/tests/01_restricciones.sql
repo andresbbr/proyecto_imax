@@ -47,6 +47,10 @@ select pg_temp.probar('sala válida',
 select pg_temp.probar('zona válida',
   $q$insert into cine.zona (id_zona, id_sala, id_tipo_zona, nombre) overriding system value
      values (900, 900, (select id_tipo_zona from cine.tipo_zona where codigo = 'general'), 'Platea')$q$, false);
+select pg_temp.probar('segunda sala y zona, sin funciones',
+  $q$insert into cine.sala (id_sala, id_sede, nombre, formato) overriding system value values (901, 900, 'Sala 2', 'IMAX digital');
+     insert into cine.zona (id_zona, id_sala, id_tipo_zona, nombre) overriding system value
+     values (901, 901, (select id_tipo_zona from cine.tipo_zona where codigo = 'general'), 'Platea')$q$, false);
 select pg_temp.probar('asientos válidos',
   $q$insert into cine.asiento (id_asiento, id_zona, fila, numero) overriding system value
      values (901, 900, 'A', 1), (902, 900, 'A', 2), (903, 900, 'A', 3)$q$, false);
@@ -103,6 +107,8 @@ select pg_temp.probar('pago aprobado con tarjeta',
   $q$insert into cine.pago (id_pago, id_orden, id_metodo_pago, monto, estado, token_pasarela, codigo_autorizacion, ultimos4, marca)
      overriding system value values (900, 900, (select id_metodo_pago from cine.metodo_pago where codigo = 'tarjeta_credito'),
      25.60, 'aprobado', 'tok_prueba', 'AUT123', '4242', 'visa')$q$, false);
+select pg_temp.probar('la orden pasa a pagada',
+  $q$update cine.orden set estado = 'pagada', pagada_en = now() where id_orden = 900$q$, false);
 select pg_temp.probar('segundo pago aprobado de la misma orden',
   $q$insert into cine.pago (id_orden, id_metodo_pago, monto, estado, codigo_autorizacion)
      values (900, (select id_metodo_pago from cine.metodo_pago where codigo = 'paypal'), 25.60, 'aprobado', 'AUT999')$q$, true);
@@ -130,10 +136,11 @@ select pg_temp.probar('boleto con QR repetido',
   $q$insert into cine.boleto (id_orden, id_asiento, id_funcion, codigo_qr) values (900, 902, 900, 'QR-PRUEBA-1')$q$, true);
 select pg_temp.probar('boleto sin línea de orden',
   $q$insert into cine.boleto (id_orden, id_asiento, id_funcion, codigo_qr) values (900, 903, 900, 'QR-PRUEBA-3')$q$, true);
-select pg_temp.probar('otra orden para el mismo asiento',
-  $q$insert into cine.orden (id_orden, id_funcion, canal, id_usuario_cliente, subtotal, total) overriding system value
-     values (901, 900, 'en_linea', 900, 10.00, 10.00);
-     insert into cine.orden_detalle (id_orden, id_asiento, id_tipo_tarifa, precio_unitario) values (901, 901, 1, 10.00)$q$, false);
+select pg_temp.probar('otra orden pagada para el mismo asiento',
+  $q$insert into cine.orden (id_orden, id_funcion, canal, id_usuario_cliente, estado, subtotal, total, pagada_en) overriding system value
+     values (901, 900, 'en_linea', 900, 'pagada', 10.00, 10.00, now());
+     insert into cine.orden_detalle (id_orden, id_asiento, id_tipo_tarifa, precio_unitario) values (901, 901, 1, 10.00);
+     insert into cine.pago (id_orden, id_metodo_pago, monto, estado, codigo_autorizacion) values (901, 3, 10.00, 'aprobado', 'AUT901')$q$, false);
 select pg_temp.probar('segundo boleto vigente del mismo asiento y función',
   $q$insert into cine.boleto (id_orden, id_asiento, id_funcion, codigo_qr) values (901, 901, 900, 'QR-PRUEBA-2')$q$, true);
 select pg_temp.probar('estado de boleto inválido',
@@ -157,9 +164,9 @@ select pg_temp.probar('boleto anulado libera el asiento para un boleto nuevo',
 select pg_temp.probar('tasa de impuesto mayor a 1',
   $q$insert into cine.pais (codigo_iso, nombre, tasa_impuesto) values ('ZY', 'Otro país', 1.5)$q$, true);
 select pg_temp.probar('asiento con número 0',
-  $q$insert into cine.asiento (id_zona, fila, numero) values (900, 'B', 0)$q$, true);
+  $q$insert into cine.asiento (id_zona, fila, numero) values (901, 'B', 0)$q$, true);
 select pg_temp.probar('asiento repetido en la zona',
-  $q$insert into cine.asiento (id_zona, fila, numero) values (900, 'A', 1)$q$, true);
+  $q$insert into cine.asiento (id_zona, fila, numero) values (901, 'A', 1), (901, 'A', 1)$q$, true);
 select pg_temp.probar('película sin sinopsis (RN-02)',
   $q$insert into cine.pelicula (id_clasificacion, titulo, sinopsis, duracion_min, poster_url, fecha_estreno)
      values (1, 'Sin sinopsis', null, 100, 'x', '2026-11-01')$q$, true);
@@ -191,7 +198,7 @@ select pg_temp.probar('orden con descuento mayor al subtotal',
 select pg_temp.probar('orden en línea sin cliente',
   $q$insert into cine.orden (id_funcion, canal) values (900, 'en_linea')$q$, true);
 select pg_temp.probar('orden pagada sin fecha de pago',
-  $q$update cine.orden set estado = 'pagada' where id_orden = 901$q$, true);
+  $q$insert into cine.orden (id_funcion, canal, id_usuario_cliente, estado) values (900, 'en_linea', 900, 'pagada')$q$, true);
 select pg_temp.probar('línea con descuento mayor al precio',
   $q$insert into cine.orden_detalle (id_orden, id_asiento, id_tipo_tarifa, precio_unitario, descuento) values (901, 903, 1, 10.00, 12.00)$q$, true);
 select pg_temp.probar('bloqueo sin fecha de expiración',

@@ -1,0 +1,46 @@
+%% Arquitectura propuesta para la plataforma de venta de entradas IMAX
+flowchart LR
+    U["Clientes web y app<br/>8 M concurrentes en el estreno"]
+    T["Taquillas y tótems de puerta"]
+
+    subgraph BORDE["Borde global"]
+        SE["Sala de espera virtual<br/>dosifica la entrada"]
+        CDN["CDN + WAF<br/>cartelera, pósteres, estáticos<br/>limitación de tasa y anti DDoS"]
+    end
+
+    subgraph REGION["Región principal (multi-AZ)"]
+        LB["Balanceador de capa 7"]
+        subgraph K8S["Aplicación en contenedores (Kubernetes)"]
+            API["API FastAPI<br/>autoescalado horizontal"]
+        end
+        CACHE[("Caché Redis<br/>cartelera y sesiones")]
+        subgraph PG["PostgreSQL administrado"]
+            P[("Primaria<br/>escrituras y unicidad<br/>función + asiento")]
+            S[("Standby síncrono<br/>otra zona, RPO 0")]
+            R1[("Réplica de lectura 1<br/>mapa de asientos")]
+            R2[("Réplica de lectura 2<br/>reportes")]
+        end
+        OBJ[("Almacenamiento de objetos<br/>WAL, respaldos y bitácoras<br/>capa caliente inmutable")]
+        ARC[("Capa de archivo<br/>bitácoras de más de 13 meses<br/>retención 5 años")]
+    end
+
+    subgraph DR["Región secundaria (DR)"]
+        PDR[("Réplica entre regiones<br/>promovible a primaria")]
+    end
+
+    PAS["Pasarela de pago externa<br/>certificada PCI DSS<br/>tokenización"]
+
+    U --> SE --> CDN --> LB --> API
+    T --> LB
+    API --> CACHE
+    API -- "bloqueo, orden, pago, emisión, check-in" --> P
+    API -- "lecturas en tiempo real" --> R1
+    API -- "analíticas" --> R2
+    P -- "replicación síncrona" --> S
+    P -- "replicación asíncrona" --> R1
+    P -- "replicación asíncrona" --> R2
+    P -- "replicación asíncrona" --> PDR
+    P -- "archivado continuo de WAL<br/>exportación mensual de particiones" --> OBJ
+    OBJ -- "ciclo de vida" --> ARC
+    U -. "datos de tarjeta solo en el formulario de la pasarela" .-> PAS
+    PAS -- "token y resultado" --> API

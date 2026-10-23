@@ -105,6 +105,14 @@ py -m pytest app/tests -v
 
 El guion de la demostración, paso a paso según la pauta de revisión, está en [docs/documento/11_guia.md](docs/documento/11_guia.md).
 
+### Respaldo y restauración
+
+```powershell
+bash scripts/respaldo_restauracion.sh
+```
+
+Respalda la base con `pg_dump`, la restaura en una base nueva, compara las filas de las tablas principales y borra la copia (sección 10.6 del documento).
+
 ### Reiniciar desde cero
 
 Borra el volumen con los datos y vuelve a crear la base vacía:
@@ -114,13 +122,23 @@ docker compose down -v
 docker compose up -d
 ```
 
+## Documento técnico
+
+El documento final está en [docs/documento/documento_tecnico_imax.docx](docs/documento/documento_tecnico_imax.docx). Sus fuentes son las secciones `docs/documento/01_*.md` a `11_*.md`; después de cambiarlas, se regenera con:
+
+```powershell
+py docs/documento/generar_docx.py
+```
+
+La correspondencia entre la pauta de revisión, la demostración, las pruebas y las evidencias está en [docs/pauta_revision.md](docs/pauta_revision.md).
+
 ## Estructura del repositorio
 
 | Ruta | Contenido |
 |---|---|
 | `docker-compose.yml` | PostgreSQL 16.15, puerto 5433 del host, volumen `imax_pgdata`, healthcheck |
 | `.env.example` | Variables de entorno de ejemplo (el `.env` real no se versiona) |
-| `docs/` | Documento técnico, diagramas, cálculos y evidencias de pruebas |
+| `docs/` | Documento técnico (fuentes y Word), diagramas, cálculos, fuentes de precios y evidencias de pruebas |
 | `docs/trazabilidad_rn.md` | Matriz RN-01..RN-20, roles y bitácoras |
 | `docs/convenciones.md` | Convención de nombres y estilo |
 | `db/` | Scripts SQL: DDL, funciones, datos de prueba, pruebas y consultas analíticas |

@@ -11,7 +11,7 @@ Aplican a todo el repositorio. No se mezclan idiomas ni estilos.
 
 ## 2. Base de datos
 
-### Esquemas (tentativo, se confirma con el modelo lógico)
+### Esquemas
 
 | Esquema | Contenido |
 |---|---|
@@ -23,7 +23,7 @@ Aplican a todo el repositorio. No se mezclan idiomas ni estilos.
 - Nombres de tabla en **singular**: `sala`, `asiento`, `funcion`, `boleto`, `pago`.
 - Columnas en `snake_case`.
 - Llave primaria: `id_<tabla>` de tipo `bigint generated always as identity` (por ejemplo `id_sala`).
-- Llave foránea: el mismo nombre de la PK a la que apunta (`asiento.id_sala` apunta a `sala.id_sala`). Si una tabla tiene dos FK a la misma tabla, se agrega un sufijo de rol (`id_usuario_responsable`).
+- Llave foránea: el mismo nombre de la PK a la que apunta (`zona.id_sala` apunta a `sala.id_sala`). Si una tabla tiene dos FK a la misma tabla, se agrega un sufijo de rol (`id_usuario_responsable`).
 - Booleanos con prefijo `es_`, `tiene_` o `requiere_` (`es_activa`, `requiere_validacion_documento`).
 - Marcas de tiempo: siempre `timestamptz`, con el servidor en UTC. Nombres `creado_en`, `actualizado_en`, `expira_en`, `inicio`, `fin`.
 - Dinero: `numeric(12,2)`. Nunca `float` ni `money`.
@@ -40,12 +40,9 @@ Aplican a todo el repositorio. No se mezclan idiomas ni estilos.
 | Check | `ck_<tabla>_<regla>` | `ck_orden_total_coherente` |
 | Índice | `ix_<tabla>_<columnas>` | `ix_funcion_inicio` |
 | Trigger | `trg_<tabla>_<momento>_<evento>` | `trg_sala_before_update` |
-| Función del trigger | `fn_trg_<tabla>_<proposito>` | `fn_trg_sala_bloquear_si_ventas` |
 | Función o procedimiento | verbo en infinitivo + objeto | `bloquear_asientos`, `calcular_total`, `validar_entrada` |
 | Vista | `v_<nombre>` | `v_cartelera_activa`, `v_mapa_asientos` |
-| Vista materializada | `mv_<nombre>` | `mv_ocupacion_funcion` |
 | Partición | `<tabla>_<aaaa>_<mm>` | `transaccion_log_2026_10` |
-| Secuencia (si no es identity) | `seq_<tabla>_<columna>` | |
 
 ### Roles de base de datos
 

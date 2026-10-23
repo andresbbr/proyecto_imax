@@ -1,0 +1,29 @@
+# PostgreSQL 16 del proyecto IMAX.
+# Uso: copiar .env.example a .env y ejecutar `docker compose up -d`.
+name: proyecto_imax
+
+services:
+  db:
+    image: postgres:16.15
+    container_name: imax_db
+    env_file: .env
+    environment:
+      TZ: ${TZ:-UTC}
+      PGTZ: ${TZ:-UTC}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      # Volumen con nombre administrado por Docker (no bind mount: evita problemas con OneDrive)
+      - imax_pgdata:/var/lib/postgresql/data
+      # Scripts SQL del repo, solo lectura, para ejecutarlos con: docker exec imax_db psql -f /db/...
+      - ./db:/db:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  imax_pgdata:

@@ -73,7 +73,7 @@ Escalas del enunciado: probabilidad Baja, Media o Alta; impacto Bajo, Medio o Cr
 | R-06 | Saturación de escrituras en la primaria por la ráfaga inicial | Alta | Crítico | Sala de espera que limita el ritmo de entrada, grupo de conexiones, transacciones cortas, bitácoras particionadas y aumento planificado del tamaño de la instancia antes del estreno. | RTO < 5 min / RPO = 0 |
 | R-07 | Retraso de las réplicas de lectura que muestra asientos desactualizados | Media | Medio | La venta la decide la primaria (unicidad), no la réplica. Alarma si el retraso supera 1 s, retiro automático de la réplica atrasada y lectura desde la otra. | RTO < 1 min / RPO = 0 |
 | R-08 | Filtración de datos de tarjeta | Baja | Crítico | Tokenización: los datos de tarjeta solo se capturan en el formulario de la pasarela certificada. Ninguna columna para PAN ni CVV, y revisión del código y del repositorio en cada versión. | No aplica (control preventivo) / No aplica: no se almacenan datos de tarjeta |
-| R-09 | Corrupción o borrado accidental de datos por error humano o defecto | Media | Crítico | Roles con privilegio mínimo, bitácoras append-only y restauración a un punto en el tiempo desde el archivado continuo de WAL. | RTO < 1 h (restauración a un punto en el tiempo) / RPO ≤ 5 s |
+| R-09 | Corrupción o borrado accidental de datos por error humano o defecto | Media | Crítico | Roles con privilegio mínimo, bitácoras append-only y restauración a un punto en el tiempo desde el archivado continuo de WAL. | RTO < 1 h (restauración a un punto en el tiempo) / RPO ≤ 5 min (frecuencia del archivado del WAL) |
 | R-10 | Pérdida de bitácoras o incumplimiento de la retención de 5 años | Baja | Crítico | Copia mensual comprimida e inmutable de las particiones en almacenamiento de objetos, ciclo de vida a la capa de archivo y prueba trimestral de recuperación de una partición antigua. | RTO < 12 h para consultar archivo / RPO = 0 (las bitácoras recientes siguen replicadas en la BD) |
 | R-11 | Caída de la caché | Media | Medio | Caché replicada. Si falla, las lecturas pasan a las réplicas de la BD. Los datos se reconstruyen solos porque son derivados. | RTO < 1 min / RPO no aplica (datos derivados) |
 | R-12 | Sobrecosto cloud por picos o por operar sin reserva | Media | Medio | Reserva de 1 año en la capacidad base, autoescalado con límites, alertas de presupuesto y revisión mensual del gasto (sección 4). | No aplica / No aplica |
@@ -81,7 +81,7 @@ Escalas del enunciado: probabilidad Baja, Media o Alta; impacto Bajo, Medio o Cr
 Notas:
 
 - El RTO menor a 5 minutos y el RPO menor o igual a 5 segundos del enunciado se refieren a las fallas de infraestructura (R-01 a R-07).
-- La restauración a un punto en el tiempo después de un error lógico (R-09) es más lenta, porque exige restaurar la base. Se ofrece con RTO < 1 h, sin cambiar el RPO.
+- La restauración a un punto en el tiempo después de un error lógico (R-09) es más lenta, porque exige restaurar la base. Se ofrece con RTO < 1 h y RPO de hasta 5 min, que es la frecuencia con que el servicio administrado archiva el WAL. La replicación no protege de un error lógico, porque también lo copia.
 - La política de respaldos y la justificación completa de RPO, RTO y SLA están en la sección 10.
 
 ## 2.6 Conclusión

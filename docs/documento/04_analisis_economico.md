@@ -116,6 +116,7 @@ Las celdas marcadas en amarillo en la hoja son supuestos del equipo. Se presenta
 - **Balanceador de capa 4 frente a capa 7.** El Standard Load Balancer de Azure es de capa 4 y no equivale al Application Load Balancer de AWS, que es de capa 7. En Azure la capa 7 y el WAF los cubre Front Door Premium.
 - **Azure sin precio de Redis ni de IOPS.** La caché de lectura de Azure no tiene precio en la hoja, y las IOPS adicionales de la BD están en cero. Por eso el total comparable excluye la caché, y el costo de Azure podría subir.
 - **Reservas de 1 año como tarifa efectiva.** Las cifras de reserva parecen tarifas efectivas con pago total por adelantado, que no es lo mismo que la tarifa sin pago inicial. Sin pago inicial, el costo mensual sería mayor y el ahorro frente a On-Demand, menor.
+- **Respaldos mensuales a 5 años.** La hoja factura 1 TB de respaldo por encima del gratuito, pero no el respaldo completo mensual retenido 5 años en la capa de archivo. Al precio de archivo de la misma hoja suma unos US$5 al mes en promedio durante los 3 años (sección 10.1), el 0.05 % del total, así que no cambia la comparación.
 - **Instancias sin redimensionar.** Se recalcularon solo los volúmenes. La configuración de instancias (32 vCPU en la primaria, 2 réplicas de 16 vCPU, 8 nodos de aplicación en el pico) es la de la hoja, y se valida con las pruebas de rendimiento del modelo físico.
 
 ## 4.10 Fuentes

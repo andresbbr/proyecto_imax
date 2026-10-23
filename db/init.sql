@@ -18,5 +18,12 @@ set client_min_messages = warning;
 \ir ddl/06_roles.sql
 \echo 'Cargando datos base...'
 \ir ddl/07_datos_base.sql
+\echo 'Creando funciones, triggers y vistas...'
+\ir funciones/01_reglas.sql
+\ir funciones/02_vistas.sql
+\ir funciones/03_venta.sql
+\ir funciones/04_acceso.sql
+\ir funciones/05_administracion.sql
+\ir funciones/06_permisos.sql
 
 \echo 'Base de datos IMAX creada.'

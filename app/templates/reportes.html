@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block titulo %}Reportes{% endblock %}
+{% block contenido %}
+<h1>Reportes</h1>
+
+<h2>1. Ocupación y recaudación por función</h2>
+<form method="get" action="/reportes" class="filtros">
+  <label>Número de función <input type="number" name="id_funcion" value="{{ id_funcion }}" min="1"></label>
+  <button type="submit">Consultar</button>
+</form>
+<table id="ocupacion">
+  <tr><th>Función</th><th>Película</th><th>Sede</th><th>Sala</th><th>Inicio</th><th>Capacidad</th><th>Vendidos</th><th>% ocupación</th><th>Ingresos (USD)</th></tr>
+  {% for o in ocupacion %}
+  <tr><td>{{ o.id_funcion }}</td><td>{{ o.titulo }}</td><td>{{ o.sede }}</td><td>{{ o.sala }}</td><td>{{ o.inicio | hora }}</td>
+      <td>{{ o.capacidad }}</td><td>{{ o.vendidos }}</td><td>{{ o.porcentaje_ocupacion }}</td><td>{{ o.ingresos_totales | dinero }}</td></tr>
+  {% else %}
+  <tr><td colspan="9">No existe esa función.</td></tr>
+  {% endfor %}
+</table>
+
+<h2>2. Top 5 de películas de la última semana</h2>
+<table id="top5">
+  <tr><th>Película</th><th>Boletos vendidos</th></tr>
+  {% for t in top5 %}<tr><td>{{ t.titulo }}</td><td>{{ t.boletos_vendidos }}</td></tr>{% endfor %}
+</table>
+
+<h2>3. Métodos de pago</h2>
+<table id="metodos">
+  <tr><th>Método</th><th>Pagos</th><th>% pagos</th><th>Monto (USD)</th><th>% monto</th></tr>
+  {% for m in metodos %}
+  <tr><td>{{ m.metodo_pago }}</td><td>{{ m.pagos }}</td><td>{{ m.porcentaje_pagos }}</td><td>{{ m.monto | dinero }}</td><td>{{ m.porcentaje_monto }}</td></tr>
+  {% endfor %}
+</table>
+
+{% if auditoria is defined %}
+<h2>4. Auditoría del último mes por administrador</h2>
+<table id="auditoria-mes">
+  <tr><th>Administrador</th><th>Operaciones</th><th>Cortesías</th><th>Reembolsos</th><th>Cambios de asiento</th><th>Otros cambios</th><th>Primera</th><th>Última</th></tr>
+  {% for a in auditoria %}
+  <tr><td>{{ a.administrador }}</td><td>{{ a.operaciones }}</td><td>{{ a.cortesias }}</td><td>{{ a.reembolsos }}</td>
+      <td>{{ a.cambios_asiento }}</td><td>{{ a.otros_cambios }}</td><td>{{ a.primera | hora }}</td><td>{{ a.ultima | hora }}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

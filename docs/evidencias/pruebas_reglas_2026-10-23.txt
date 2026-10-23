@@ -1,0 +1,421 @@
+Pruebas de reglas
+Fecha: 2026-10-23 11:00:49 -0600
+Base: PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, con los datos de db/seed/cargar.sql
+Comando: docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/tests/02_reglas.sql
+
+SET
+BEGIN
+CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+UPDATE 2
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 3
+INSERT 0 3
+INSERT 0 12
+INSERT 0 2
+INSERT 0 8
+INSERT 0 1
+INSERT 0 6
+INSERT 0 4
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ verificar 
+-----------
+ 
+
+ liberar_asientos 
+------------------
+                6
+
+ probar 
+--------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+UPDATE 2
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+UPDATE 2
+ verificar 
+-----------
+ 
+
+INSERT 0 1
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ probar 
+--------
+ 
+
+ liberar_asientos 
+------------------
+                2
+
+ verificar 
+-----------
+ 
+
+ liberar_asientos 
+------------------
+                1
+
+UPDATE 1
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ probar 
+--------
+ 
+
+ elegir_tarifa 
+---------------
+         22.00
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ probar 
+--------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ registrar_incidencia 
+----------------------
+ 
+
+ verificar 
+-----------
+ 
+
+ procesar_pago 
+---------------
+ aprobado
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ establecer_contexto 
+---------------------
+ 
+
+ procesar_pago 
+---------------
+ aprobado
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ procesar_pago 
+---------------
+ aprobado
+
+ probar 
+--------
+ 
+
+ anular_boleto 
+---------------
+         11.00
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ verificar 
+-----------
+ 
+
+ cambiar_asiento 
+-----------------
+ 
+
+ verificar 
+-----------
+ 
+
+UPDATE 1
+ verificar 
+-----------
+ 
+
+ probar 
+--------
+ 
+
+ probar 
+--------
+ 
+
+ n  |                                          prueba                                           | esperado | obtenido | resultado |                           detalle                            
+----+-------------------------------------------------------------------------------------------+----------+----------+-----------+--------------------------------------------------------------
+  1 | T-RN01-P función programada y futura aparece en la cartelera                              | cumple   | cumple   | OK        | 
+  2 | T-RN01-N función pasada no aparece en la cartelera                                        | cumple   | cumple   | OK        | 
+  3 | T-RN01-N función cancelada no aparece en la cartelera                                     | cumple   | cumple   | OK        | 
+  4 | T-RN02-P la cartelera trae título, sinopsis, clasificación, horario y ubicación           | cumple   | cumple   | OK        | 
+  5 | T-RN02-N película sin sinopsis es rechazada                                               | rechaza  | rechaza  | OK        | null value in column "sinopsis" of relation "pelicula" viola
+  6 | Función que se traslapa con otra de la misma sala es rechazada                            | rechaza  | rechaza  | OK        | La sala ya tiene una función programada que se traslapa con 
+  7 | Función después de la anterior en la misma sala es aceptada                               | acepta   | acepta   | OK        | 
+  8 | T-RN04-P se pueden bloquear 6 asientos                                                    | cumple   | cumple   | OK        | 
+  9 | T-RN04-N bloquear 7 asientos es rechazado                                                 | rechaza  | rechaza  | OK        | Se pueden comprar como máximo 6 asientos por transacción (RN
+ 10 | T-RN05-P el bloqueo vence 2 minutos después                                               | cumple   | cumple   | OK        | 
+ 11 | T-RN05-N otro usuario no puede bloquear un asiento ya bloqueado                           | cumple   | cumple   | OK        | 
+ 12 | T-RN05-N la colisión queda en la bitácora de asientos                                     | cumple   | cumple   | OK        | 
+ 13 | T-RN03-P el mapa muestra el asiento bloqueado                                             | cumple   | cumple   | OK        | 
+ 14 | T-RN03-N un bloqueo vencido se muestra disponible antes del barrido                       | cumple   | cumple   | OK        | 
+ 15 | T-RN05-P al vencer el bloqueo, otro usuario puede tomar el asiento                        | cumple   | cumple   | OK        | 
+ 16 | T-RN05-P la orden vencida queda expirada                                                  | cumple   | cumple   | OK        | 
+ 17 | T-RN05-P la liberación por vencimiento queda en la bitácora                               | cumple   | cumple   | OK        | 
+ 18 | T-RN05-P el barrido periódico libera los bloqueos vencidos                                | cumple   | cumple   | OK        | 
+ 19 | T-RN07-P el 2x1 descuenta una de dos entradas de adulto                                   | cumple   | cumple   | OK        | 
+ 20 | T-RN08-P total = tarifas - descuentos + cargo por servicio + impuesto                     | cumple   | cumple   | OK        | 
+ 21 | T-RN08-N un total incoherente es rechazado                                                | rechaza  | rechaza  | OK        | new row for relation "orden" violates check constraint "ck_o
+ 22 | T-RN07-N con una sola entrada el 2x1 no aplica                                            | cumple   | cumple   | OK        | 
+ 23 | T-RN10-P el pago rechazado cancela la orden                                               | cumple   | cumple   | OK        | 
+ 24 | T-RN10-P el pago rechazado libera el asiento de inmediato                                 | cumple   | cumple   | OK        | 
+ 25 | T-RN10-P el intento rechazado queda registrado sin cobro                                  | cumple   | cumple   | OK        | 
+ 26 | T-RN11-N sin pago aprobado no se emite ningún boleto                                      | cumple   | cumple   | OK        | 
+ 27 | T-RN11-N un boleto de una orden pendiente es rechazado                                    | rechaza  | rechaza  | OK        | No se puede emitir un boleto sin un pago aprobado de su orde
+ 28 | T-RN10-N con el pago aprobado los asientos quedan vendidos                                | cumple   | cumple   | OK        | 
+ 29 | T-RN11-P el pago aprobado emite un boleto con QR por asiento                              | cumple   | cumple   | OK        | 
+ 30 | T-RN09-P del pago solo se guardan el token, los últimos 4 dígitos y la marca              | cumple   | cumple   | OK        | 
+ 31 | T-RN09-N no existe ninguna columna para el número de tarjeta ni el código de verificación | cumple   | cumple   | OK        | 
+ 32 | T-RN09-N un número de tarjeta en lugar de los últimos 4 dígitos es rechazado              | rechaza  | rechaza  | OK        | value too long for type character(4)
+ 33 | T-RN12-P cada boleto tiene un QR distinto de 32 caracteres                                | cumple   | cumple   | OK        | 
+ 34 | T-RN12-N un asiento vendido no se puede volver a bloquear ni vender                       | cumple   | cumple   | OK        | 
+ 35 | T-RN13-P el cliente ve sus entradas en su perfil                                          | cumple   | cumple   | OK        | 
+ 36 | T-RN13-N otro cliente no ve esas entradas                                                 | cumple   | cumple   | OK        | 
+ 37 | T-RN14-P el primer escaneo permite el ingreso                                             | cumple   | cumple   | OK        | Acceso permitido
+ 38 | T-RN16-P dentro de la ventana de ingreso (10 minutos antes) se acepta                     | cumple   | cumple   | OK        | 
+ 39 | T-RN06-N una tarifa de adulto no pide documento                                           | cumple   | cumple   | OK        | 
+ 40 | T-RN14-N el segundo escaneo responde "Entrada ya utilizada"                               | cumple   | cumple   | OK        | Entrada ya utilizada
+ 41 | T-RN14-N el intento duplicado queda en la bitácora de puerta                              | cumple   | cumple   | OK        | 
+ 42 | T-RN15-N una entrada de otra sala o función es rechazada                                  | cumple   | cumple   | OK        | La entrada es de otra función o sala
+ 43 | T-RN15-P la misma entrada en su sala y función es aceptada                                | cumple   | cumple   | OK        | Acceso permitido. Validar documento de la tarifa especial
+ 44 | T-RN06-P una tarifa de niño pide validar el documento                                     | cumple   | cumple   | OK        | Acceso permitido. Validar documento de la tarifa especial
+ 45 | T-RN06-P la incidencia de documento queda registrada                                      | cumple   | cumple   | OK        | 
+ 46 | T-RN16-N una entrada fuera de la ventana de ingreso es rechazada                          | cumple   | cumple   | OK        | Fuera del horario de ingreso
+ 47 | Un código que no existe es rechazado                                                      | cumple   | cumple   | OK        | 
+ 48 | T-RN17-P el operador de puerta puede validar entradas                                     | cumple   | cumple   | OK        | 
+ 49 | T-RN17-P el cliente y el taquillero pueden comprar                                        | cumple   | cumple   | OK        | 
+ 50 | T-RN17-N el cliente no puede anular boletos ni validar entradas                           | cumple   | cumple   | OK        | 
+ 51 | T-RN17-N el taquillero no puede otorgar cortesías, cambiar asientos ni modificar precios  | cumple   | cumple   | OK        | 
+ 52 | T-RN17-N el operador de puerta no puede vender                                            | cumple   | cumple   | OK        | 
+ 53 | T-RN18-N no se puede borrar un asiento de una sala con ventas                             | rechaza  | rechaza  | OK        | No se puede modificar la distribución de la sala: tiene entr
+ 54 | T-RN18-N no se pueden agregar asientos a una sala con ventas                              | rechaza  | rechaza  | OK        | No se puede modificar la distribución de la sala: tiene entr
+ 55 | T-RN18-N no se puede desactivar una sala con ventas                                       | rechaza  | rechaza  | OK        | No se puede modificar la distribución de la sala: tiene entr
+ 56 | T-RN18-P una sala sin ventas sí se puede modificar                                        | acepta   | acepta   | OK        | 
+ 57 | T-RN20-N una operación manual sin responsable es rechazada                                | rechaza  | rechaza  | OK        | Operación sin responsable: falta llamar a establecer_context
+ 58 | T-RN19-P reembolso por política hasta 2 horas antes de la función                         | cumple   | cumple   | OK        | 
+ 59 | T-RN19-P el reembolso libera el asiento para la venta                                     | cumple   | cumple   | OK        | 
+ 60 | T-RN19-N reembolso por política a menos de 2 horas de la función es rechazado             | rechaza  | rechaza  | OK        | Fuera de la política de reembolso: solo hasta 2 horas antes 
+ 61 | T-RN19-P el administrador puede forzar el reembolso                                       | cumple   | cumple   | OK        | 
+ 62 | T-RN20-P el reembolso forzado queda auditado con fecha, IP, rol y usuario                 | cumple   | cumple   | OK        | 
+ 63 | T-RN20-P la cortesía emite un boleto sin pago y queda auditada                            | cumple   | cumple   | OK        | 
+ 64 | T-RN20-P el cambio manual de asiento mueve el boleto y queda auditado                     | cumple   | cumple   | OK        | 
+ 65 | T-RN20-P el cambio de precio queda auditado con el valor anterior y el nuevo              | cumple   | cumple   | OK        | 
+ 66 | T-RN20-N la bitácora de auditoría no se puede modificar                                   | rechaza  | rechaza  | OK        | La bitácora admin_operacion_audit_2026_10 no se puede modifi
+ 67 | T-RN20-N la bitácora de auditoría no se puede borrar                                      | rechaza  | rechaza  | OK        | La bitácora admin_operacion_audit_2026_10 no se puede modifi
+
+ pruebas | correctas | fallidas 
+---------+-----------+----------
+      67 |        67 |        0
+
+ rn_sin_positiva_y_negativa 
+----------------------------
+ 
+
+DO
+ROLLBACK
+
+Código de salida de psql: 0

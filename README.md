@@ -36,13 +36,36 @@ La carpeta `db/` está montada en solo lectura dentro del contenedor en `/db`. E
 docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/init.sql
 ```
 
-### Pruebas de restricciones
+### Cargar los datos de prueba
+
+Carga los datos de demostración y la carga masiva (millones de filas; tarda varios minutos):
+
+```powershell
+docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/seed/cargar.sql
+```
+
+Para una carga más chica: `-v salas=20 -v dias=30`. Solo la demostración: `-f /db/seed/01_datos_demo.sql`.
+
+Usuarios de demostración (contraseña de prueba `imax2026`):
+
+| Usuario | Rol |
+|---|---|
+| `cliente@imax.demo`, `cliente2@imax.demo` | Cliente |
+| `taquilla@imax.demo` | Taquillero (IMAX San José) |
+| `puerta@imax.demo` | Operador de puerta (IMAX San José) |
+| `contador@imax.demo` | Contador |
+| `admin@imax.demo` | Administrador |
+
+En el pago simulado, una tarjeta que termina en `0002` es rechazada.
+
+### Pruebas
 
 ```powershell
 docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/tests/01_restricciones.sql
+docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/tests/02_reglas.sql
 ```
 
-Las pruebas corren dentro de una transacción que se revierte al final, así que no dejan datos.
+La primera prueba las restricciones y los permisos; la segunda, las reglas de negocio RN-01 a RN-20. Las dos corren dentro de una transacción que se revierte al final, así que no dejan datos.
 
 ### Reiniciar desde cero
 

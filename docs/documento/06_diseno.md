@@ -307,10 +307,41 @@ Ningún rol tiene UPDATE ni DELETE sobre las bitácoras. Las operaciones que esc
 
 ### 6.3.8 Pruebas de restricciones
 
-`db/tests/01_restricciones.sql` prueba 113 casos dentro de una transacción que se revierte al final:
+`db/tests/01_restricciones.sql` prueba 115 casos dentro de una transacción que se revierte al final:
 
 - inserciones válidas;
 - rechazos por PK, FK, UNIQUE, CHECK y NOT NULL;
 - el permiso de cada rol sobre las bitácoras y sobre la configuración.
 
-También intenta de verdad modificar una bitácora con el rol de administrador, y la base de datos lo rechaza. La salida real está en `docs/evidencias/pruebas_restricciones_2026-10-22.txt`: 113 de 113 correctas.
+También intenta de verdad modificar una bitácora con el rol de administrador, y la base de datos lo rechaza. La salida real está en `docs/evidencias/pruebas_restricciones_2026-10-23.txt`: 115 de 115 correctas.
+
+### 6.3.9 Lógica en la base de datos
+
+Las reglas que no se pueden expresar con una sola restricción viven en la base de datos, en `db/funciones`, como funciones, triggers y vistas. La aplicación no escribe directamente en las tablas de venta: llama a estas funciones. Las funciones que escriben son `SECURITY DEFINER` (corren con los permisos del dueño del esquema) y cada rol solo tiene permiso de ejecutar las suyas.
+
+| Objeto | Tipo | Qué hace | RN |
+|---|---|---|---|
+| `v_cartelera_activa` | Vista | Funciones programadas con inicio futuro, con película, clasificación, géneros, sala, sede, dirección, ciudad y país | RN-01, RN-02 |
+| `v_mapa_asientos` | Vista | Estado de cada asiento por función: disponible, bloqueado, reservado u ocupado. Un bloqueo vencido ya cuenta como disponible | RN-03 |
+| `v_mis_entradas` | Vista | Boletos de cada cliente con su QR y su estado (vigente, utilizada, anulado) | RN-13 |
+| `bloquear_asientos` | Función | Valida la función, el máximo de 6 asientos y que los asientos sean de la sala; libera los bloqueos vencidos; crea la orden pendiente y bloquea por 2 minutos. Si otro usuario ya tiene un asiento, la PK lo impide: se deshace la orden, se registra la colisión y devuelve nulo | RN-04, RN-05, RN-12 |
+| `elegir_tarifa`, `calcular_total` | Funciones | Cambian el tipo de entrada y recalculan el precio de la matriz, la promoción, el cargo por servicio, el impuesto y el total | RN-07, RN-08 |
+| `procesar_pago` | Función | Pasarela simulada: la tarjeta terminada en 0002 o un bloqueo vencido se rechazan. Aprobado: asientos vendidos, orden pagada y boletos emitidos. Rechazado: el intento se registra y los asientos se liberan de inmediato | RN-09, RN-10, RN-11 |
+| `emitir_boletos` | Función interna | Un boleto por línea, con QR aleatorio de 32 caracteres | RN-11, RN-12 |
+| `liberar_bloqueos_expirados`, `liberar_asientos` | Funciones | Barrido periódico de bloqueos vencidos y liberación cuando el cliente abandona la compra | RN-05 |
+| `validar_entrada`, `registrar_incidencia` | Funciones | Rechazan un código inexistente, una entrada anulada, ya utilizada ("Entrada ya utilizada"), de otra función o sala, o fuera de la ventana de -30/+15 minutos. Avisan si la tarifa exige validar el documento. Cada escaneo queda en `acceso_puerta_log` | RN-06, RN-14, RN-15, RN-16 |
+| `anular_boleto`, `cancelar_funcion` | Funciones | Reembolso por política (hasta 2 horas antes), forzado o por cancelación de la función; liberan el asiento | RN-19, RN-20 |
+| `otorgar_cortesia`, `cambiar_asiento`, `reservar_asiento`, `liberar_reserva` | Funciones | Operaciones manuales del administrador | RN-20 |
+| `establecer_contexto` | Función | La aplicación indica al inicio de cada transacción de un empleado su usuario y su IP | RN-20 |
+| `trg_funcion_sin_traslape` | Trigger | Rechaza una función que se traslapa con otra programada en la misma sala | Pauta 1 |
+| `trg_*_proteger` | Triggers | Rechazan borrar o desactivar una sala, o cambiar sus zonas y asientos, si tiene entradas vendidas, reservadas o bloqueadas en funciones programadas | RN-18 |
+| `trg_boleto_solo_pagado` | Trigger | Un boleto solo se inserta si su orden está pagada con un pago aprobado (o es una cortesía de total 0) | RN-11 |
+| `trg_*_auditoria` | Triggers | Registran en `admin_operacion_audit` cada cambio de sedes, salas, zonas, asientos, películas, funciones, tarifas, promociones y parámetros, con los valores anteriores y nuevos | RN-20 |
+| `trg_*_solo_insercion` | Triggers | Rechazan UPDATE y DELETE en las 4 bitácoras, incluso para el dueño del esquema | RN-20 |
+
+Las pruebas de `db/tests/02_reglas.sql` cubren cada RN con al menos un caso positivo y uno negativo; son 67 casos y la salida real está en `docs/evidencias/pruebas_reglas_2026-10-23.txt`.
+
+### 6.3.10 Datos de prueba
+
+- `db/seed/01_datos_demo.sql`: datos pequeños para la demostración. Son 6 sedes en 4 países, cada una con una sala de 200 asientos, 12 películas, la matriz de tarifas, 2 promociones (2x1 en adultos los martes, 20 % para estudiantes los miércoles), funciones para los próximos 14 días y un usuario por rol.
+- `db/seed/02_carga_masiva.sql`: carga con `generate_series` para que el optimizador trabaje con volúmenes reales. Son 60 sedes más con salas de 300 asientos, 5 funciones por sala y día durante 90 días de historia y 7 futuros (alrededor de 1.8 millones de filas en total, ver `docs/evidencias/carga_datos_2026-10-23.txt`), y las ventas con sus pagos, boletos, check-in y las 4 bitácoras. La escala se puede cambiar con `-v salas=... -v dias=... -v max_asientos=...`.

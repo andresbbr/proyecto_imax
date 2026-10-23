@@ -2,7 +2,7 @@
 -- Corre las 4 consultas analíticas y comprueba que sus resultados cuadran con los datos,
 -- calculando lo mismo por otro camino.
 --
---   docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiticas/ejecutar.sql
+--   psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/analiticas/ejecutar.sql
 
 \set ON_ERROR_STOP on
 \pset footer off

@@ -2,7 +2,7 @@
 -- Auditoría de operaciones críticas: modificaciones manuales, cortesías y reembolsos
 -- hechos por los administradores durante el último mes, agrupados por administrador.
 --
---   docker exec imax_db psql -U imax_owner -d imax -f /db/analiticas/04_auditoria_mes.sql
+--   psql -U imax_owner -d imax -f db/analiticas/04_auditoria_mes.sql
 
 select a.id_usuario,
        u.nombre || ' ' || u.apellidos as administrador,

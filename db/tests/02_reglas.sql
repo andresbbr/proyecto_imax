@@ -4,7 +4,7 @@
 -- Los datos de prueba usan identificadores 99000xx, fechas relativas a now() y una
 -- transacción que se revierte al final.
 --
---   docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/tests/02_reglas.sql
+--   psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/tests/02_reglas.sql
 
 \set ON_ERROR_STOP on
 \pset footer off

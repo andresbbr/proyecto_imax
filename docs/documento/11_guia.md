@@ -2,18 +2,30 @@
 
 ## 11.1 Puesta en marcha
 
-Requisitos: Docker Desktop, Git y Python 3.14. Todos los comandos se ejecutan en PowerShell desde la raíz del repositorio.
+Requisitos: PostgreSQL 16 y Python 3.14 instalados en el equipo. Todos los comandos se ejecutan en PowerShell desde la carpeta del proyecto.
 
 ```powershell
-Copy-Item .env.example .env      # cambiar las contraseñas de prueba
-docker compose up -d             # PostgreSQL 16 en el puerto 5433
-docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/init.sql
-docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/seed/cargar.sql
+powershell -ExecutionPolicy Bypass -File iniciar.ps1
+```
+
+El script hace lo siguiente:
+
+1. Crea el `.env` a partir de `.env.example` si no existe.
+2. La primera vez, crea el usuario `imax_owner` y la base `imax` con `db/crear_base.sql`. Para eso pide la contraseña del superusuario `postgres` de la instalación.
+3. Ejecuta `db/init.sql`, que crea el esquema, las funciones, los roles y el usuario de conexión `imax_app`.
+4. Ejecuta `db/seed/cargar.sql`, que agrega los datos de demostración y la carga masiva (unos 2 minutos).
+5. Instala las dependencias de Python y abre la aplicación en `http://127.0.0.1:8000`.
+
+Las siguientes veces reutiliza la base; `iniciar.ps1 -Reiniciar` la vuelve a crear desde cero. Los mismos pasos a mano, con `psql` de la instalación (`C:\Program Files\PostgreSQL\16\bin`):
+
+```powershell
+$env:POSTGRES_PASSWORD = "<del .env>"; $env:APP_DB_PASSWORD = "<del .env>"; $env:PGCLIENTENCODING = "UTF8"
+psql -U postgres -d postgres -f db/crear_base.sql
+psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/init.sql
+psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/seed/cargar.sql
 py -m pip install -r requirements.txt
 py -m uvicorn app.main:app --port 8000
 ```
-
-La aplicación queda en `http://127.0.0.1:8000`. `init.sql` crea el esquema, las funciones, los roles y el usuario de conexión `imax_app`; `cargar.sql` agrega los datos de demostración y la carga masiva. Para empezar de nuevo: `docker compose down -v` y repetir los pasos.
 
 La aplicación se conecta con `imax_app`, que por sí mismo no tiene permisos. En cada petición cambia al rol de base de datos del usuario que inició sesión (`set local role`), así que la base aplica los permisos aunque la interfaz tuviera un error. En las operaciones de empleados registra el usuario y la IP para la bitácora de auditoría. Cada 60 segundos la aplicación llama a `liberar_bloqueos_expirados()`.
 
@@ -33,11 +45,11 @@ En el pago simulado, una tarjeta que termina en `0002` es rechazada; cualquier o
 
 | Prueba | Comando | Evidencia |
 |---|---|---|
-| Restricciones y permisos | `docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/tests/01_restricciones.sql` | `pruebas_restricciones_*.txt` |
-| Reglas RN-01 a RN-20 | `docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/tests/02_reglas.sql` | `pruebas_reglas_*.txt` |
+| Restricciones y permisos | `psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/tests/01_restricciones.sql` | `pruebas_restricciones_*.txt` |
+| Reglas RN-01 a RN-20 | `psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/tests/02_reglas.sql` | `pruebas_reglas_*.txt` |
 | Concurrencia | `py scripts/concurrencia.py` | `concurrencia_*.txt` |
-| Analíticas | `docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiticas/ejecutar.sql` | `analiticas_*.txt` |
-| Planes de ejecución | `docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiticas/explain_indices.sql` | `explain_antes_despues_*.txt` |
+| Analíticas | `psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/analiticas/ejecutar.sql` | `analiticas_*.txt` |
+| Planes de ejecución | `psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/analiticas/explain_indices.sql` | `explain_antes_despues_*.txt` |
 | Interfaz (con la aplicación corriendo) | `py -m playwright install chromium` y luego `py -m pytest app/tests -v` | `pruebas_gui_*.txt` |
 
 Las pruebas de la interfaz recorren en Chromium los flujos de la sección 11.3: filtros de la cartelera, pago rechazado que libera los asientos, pago aprobado con un QR por asiento, el bloqueo visto desde un segundo navegador, la puerta, el acceso por rol y la auditoría. Programan sus propias funciones en la Sala IMAX 2 y al empezar cancelan las de corridas anteriores.

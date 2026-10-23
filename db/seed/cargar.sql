@@ -2,7 +2,7 @@
 -- Carga los datos de demostración y la carga masiva, y muestra las filas y el tamaño de
 -- las tablas principales. Se ejecuta después de db/init.sql:
 --
---   docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/seed/cargar.sql
+--   psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/seed/cargar.sql
 
 \set ON_ERROR_STOP on
 \timing on

@@ -7,7 +7,7 @@
 -- Antes de cada EXPLAIN la consulta se ejecuta una vez sin mostrar el resultado, para que
 -- en las dos fases los datos ya estén en memoria y la comparación sea justa.
 --
---   docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiticas/explain_indices.sql
+--   psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/analiticas/explain_indices.sql
 
 \set ON_ERROR_STOP on
 \pset footer off

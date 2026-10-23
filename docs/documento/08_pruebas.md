@@ -41,7 +41,7 @@ En las 50 corridas hubo **exactamente un ganador y cero duplicados**. El mecanis
 En cada fase se hace `ANALYZE` y cada consulta se ejecuta una vez antes de medirla, para que en las dos fases los datos estén en memoria y la comparación sea justa.
 
 ```
-docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiticas/explain_indices.sql
+psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/analiticas/explain_indices.sql
 ```
 
 **Resultados** (`docs/evidencias/explain_antes_despues_2026-10-23.txt`; costo estimado del nodo raíz, tiempo de ejecución y páginas leídas en memoria):

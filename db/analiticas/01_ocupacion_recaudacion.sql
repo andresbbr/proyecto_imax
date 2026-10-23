@@ -2,7 +2,7 @@
 -- Ocupación y recaudación por función: porcentaje de asientos vendidos frente a la
 -- capacidad de la sala e ingresos totales de una función específica.
 --
---   docker exec imax_db psql -U imax_owner -d imax -v id_funcion=123 -f /db/analiticas/01_ocupacion_recaudacion.sql
+--   psql -U imax_owner -d imax -v id_funcion=123 -f db/analiticas/01_ocupacion_recaudacion.sql
 --
 -- Sin -v id_funcion se usa la función ya realizada con más boletos vendidos.
 

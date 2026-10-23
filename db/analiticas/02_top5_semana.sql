@@ -3,7 +3,7 @@
 -- última semana a nivel global. Se cuentan los boletos vigentes emitidos en los últimos
 -- 7 días (un boleto se emite en el momento en que se aprueba el pago).
 --
---   docker exec imax_db psql -U imax_owner -d imax -f /db/analiticas/02_top5_semana.sql
+--   psql -U imax_owner -d imax -f db/analiticas/02_top5_semana.sql
 
 select p.titulo,
        count(*) as boletos_vendidos

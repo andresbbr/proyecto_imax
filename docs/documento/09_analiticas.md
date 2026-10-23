@@ -3,7 +3,7 @@
 Las 4 consultas que la gerencia consultará regularmente están en `db/analiticas`, una por archivo. `db/analiticas/ejecutar.sql` las corre juntas y además comprueba que sus resultados cuadran con los datos, calculando lo mismo por otro camino:
 
 ```
-docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiticas/ejecutar.sql
+psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/analiticas/ejecutar.sql
 ```
 
 Los resultados de esta sección son la salida real sobre los datos de prueba (`docs/evidencias/analiticas_2026-10-23.txt`). Sus planes de ejecución están en la sección 8.2.

@@ -11,59 +11,62 @@ En [Releases](https://github.com/andresbbr/proyecto_imax/releases/latest) están
 
 ## Requisitos
 
-- Docker Desktop con Docker Compose v2 o superior.
-- Python 3.14 (aplicación web, pruebas de la interfaz y de concurrencia).
+- PostgreSQL 16 instalado (con `psql`, que viene en `C:\Program Files\PostgreSQL\16\bin`).
+- Python 3.14.
 - Git, solo si se clona el repositorio en lugar de descargar el zip.
 
 ## Arranque rápido en Windows
 
-Con Docker Desktop abierto, descomprimir `proyecto_imax.zip` (o clonar el repositorio) y ejecutar en PowerShell, dentro de la carpeta:
+Descomprimir `proyecto_imax.zip` (o clonar el repositorio) y ejecutar en PowerShell, dentro de la carpeta:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File iniciar.ps1
 ```
 
-El script crea el `.env` a partir de `.env.example`, levanta PostgreSQL y espera a que esté listo. La primera vez crea la base y carga los datos de prueba, lo que tarda unos 2 minutos. Después instala las dependencias de Python y abre la aplicación en `http://127.0.0.1:8000`. Las siguientes veces reutiliza la base; con `-Reiniciar` la vuelve a crear desde cero.
+El script hace lo siguiente:
 
-Los pasos de las secciones siguientes son los mismos, uno por uno, por si se quieren ejecutar a mano o en otro sistema operativo.
+1. Crea el `.env` a partir de `.env.example` si no existe.
+2. La primera vez crea el usuario `imax_owner` y la base `imax`. Para eso pide la contraseña del superusuario `postgres` de la instalación.
+3. Crea el esquema y carga los datos de prueba, lo que tarda unos 2 minutos.
+4. Instala las dependencias de Python y abre la aplicación en `http://127.0.0.1:8000`.
 
-## Levantar la base de datos
+Las siguientes veces reutiliza la base; con `-Reiniciar` la vuelve a crear desde cero. Si PostgreSQL usa otro puerto o servidor, se cambian `POSTGRES_PORT` y `POSTGRES_HOST` en el `.env`.
 
-En PowerShell, desde la raíz del repositorio:
+Las secciones siguientes muestran los mismos pasos a mano.
 
-```powershell
-Copy-Item .env.example .env      # luego editar POSTGRES_PASSWORD en .env
-docker compose up -d
-docker compose ps                # imax_db debe aparecer como (healthy)
-```
+## Base de datos paso a paso
 
-En Git Bash el primer paso es `cp .env.example .env`.
-
-Comprobar la versión:
+En PowerShell, desde la carpeta del proyecto, con `psql` en el PATH. Las variables toman las contraseñas del `.env`:
 
 ```powershell
-docker exec imax_db psql -U imax_owner -d imax -c "select version();"
+Copy-Item .env.example .env      # cambiar las contraseñas de prueba
+$env:POSTGRES_PASSWORD = "<POSTGRES_PASSWORD del .env>"
+$env:APP_DB_PASSWORD = "<APP_DB_PASSWORD del .env>"
+$env:PGCLIENTENCODING = "UTF8"
+psql -U postgres -d postgres -f db/crear_base.sql
 ```
 
-Conexión desde el host (DBeaver, pgAdmin, `psql`): `localhost:5433`, base `imax`, usuario `imax_owner`, contraseña la del `.env`.
+`db/crear_base.sql` se ejecuta una sola vez, con el superusuario de la instalación. Crea el usuario dueño `imax_owner` y la base `imax` en UTF-8 y con zona horaria UTC.
+
+Conexión desde DBeaver, pgAdmin o `psql`: `localhost:5432`, base `imax`, usuario `imax_owner`, con la contraseña del `.env`.
 
 ### Crear las tablas
 
-La carpeta `db/` está montada en solo lectura dentro del contenedor en `/db`. El script `db/init.sql` crea los esquemas, las tablas, las bitácoras particionadas, los índices, los roles y los datos base. Se puede ejecutar las veces que se quiera: cada vez vuelve a crear todo desde cero.
+El script `db/init.sql` crea los esquemas, las tablas, las bitácoras particionadas, los índices, los roles y los datos base. Se puede ejecutar las veces que se quiera: cada vez vuelve a crear todo desde cero.
 
 ```powershell
-docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/init.sql
+psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/init.sql
 ```
 
 ### Cargar los datos de prueba
 
-Carga los datos de demostración y la carga masiva (millones de filas; tarda varios minutos):
+Carga los datos de demostración y la carga masiva (millones de filas; tarda unos minutos):
 
 ```powershell
-docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/seed/cargar.sql
+psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/seed/cargar.sql
 ```
 
-Para una carga más chica: `-v salas=20 -v dias=30`. Solo la demostración: `-f /db/seed/01_datos_demo.sql`.
+Para una carga más chica: `-v salas=20 -v dias=30`. Solo la demostración: `-f db/seed/01_datos_demo.sql`.
 
 Usuarios de demostración (contraseña de prueba `imax2026`):
 
@@ -80,8 +83,8 @@ En el pago simulado, una tarjeta que termina en `0002` es rechazada.
 ### Pruebas
 
 ```powershell
-docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/tests/01_restricciones.sql
-docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/tests/02_reglas.sql
+psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/tests/01_restricciones.sql
+psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/tests/02_reglas.sql
 ```
 
 La primera prueba las restricciones y los permisos; la segunda, las reglas de negocio RN-01 a RN-20. Las dos corren dentro de una transacción que se revierte al final, así que no dejan datos.
@@ -98,8 +101,8 @@ py scripts/concurrencia.py
 Lanza 25 corridas con 20 y con 50 solicitudes simultáneas por el mismo asiento y verifica que en cada una haya exactamente un ganador.
 
 ```powershell
-docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiticas/ejecutar.sql
-docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiticas/explain_indices.sql
+psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/analiticas/ejecutar.sql
+psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/analiticas/explain_indices.sql
 ```
 
 El primero corre las 4 consultas analíticas y sus comprobaciones. El segundo muestra los planes de `EXPLAIN (ANALYZE, BUFFERS)` sin y con los índices, y al final deja los índices creados.
@@ -127,19 +130,22 @@ El guion de la demostración, paso a paso según la pauta de revisión, está en
 ### Respaldo y restauración
 
 ```powershell
-bash scripts/respaldo_restauracion.sh
+powershell -ExecutionPolicy Bypass -File scripts/respaldo_restauracion.ps1
 ```
 
 Respalda la base con `pg_dump`, la restaura en una base nueva, compara las filas de las tablas principales y borra la copia (sección 10.6 del documento).
 
 ### Reiniciar desde cero
 
-Borra el volumen con los datos y vuelve a crear la base vacía:
-
 ```powershell
-docker compose down -v
-docker compose up -d
+powershell -ExecutionPolicy Bypass -File iniciar.ps1 -Reiniciar
 ```
+
+Vuelve a crear el esquema y a cargar los datos de prueba.
+
+### Sin PostgreSQL instalado
+
+`docker-compose.yml` levanta la misma versión (PostgreSQL 16.15) en Docker, con el usuario y la base ya creados. Hay que poner `POSTGRES_PORT=5433` en el `.env`, ejecutar `docker compose up -d` y después `iniciar.ps1`, que en ese caso necesita igual `psql` en el equipo.
 
 ## Documento técnico
 
@@ -156,14 +162,14 @@ La correspondencia entre la pauta de revisión, la demostración, las pruebas y 
 | Ruta | Contenido |
 |---|---|
 | `iniciar.ps1` | Arranque completo en Windows con un solo comando |
-| `docker-compose.yml` | PostgreSQL 16.15, puerto 5433 del host, volumen `imax_pgdata`, healthcheck |
+| `docker-compose.yml` | Opcional: PostgreSQL 16.15 en Docker para un equipo sin PostgreSQL instalado |
 | `.env.example` | Variables de entorno de ejemplo (el `.env` real no se versiona) |
 | `docs/` | Documento técnico (fuentes y Word), diagramas, cálculos, fuentes de precios y evidencias de pruebas |
 | `docs/trazabilidad_rn.md` | Matriz RN-01..RN-20, roles y bitácoras |
 | `docs/convenciones.md` | Convención de nombres y estilo |
 | `db/` | Scripts SQL: DDL, funciones, datos de prueba, pruebas y consultas analíticas |
 | `app/` | Aplicación web: backend FastAPI, plantillas, estilos y pruebas de la interfaz |
-| `scripts/` | Pruebas de concurrencia y utilidades |
+| `scripts/` | Prueba de concurrencia y prueba de respaldo y restauración |
 
 ## Convención de commits
 

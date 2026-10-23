@@ -2,7 +2,7 @@
 -- Métodos de pago preferidos: porcentaje de pagos aprobados (y del monto cobrado) por
 -- cada método o pasarela.
 --
---   docker exec imax_db psql -U imax_owner -d imax -f /db/analiticas/03_metodos_pago.sql
+--   psql -U imax_owner -d imax -f db/analiticas/03_metodos_pago.sql
 
 select m.nombre as metodo_pago,
        count(*) as pagos,

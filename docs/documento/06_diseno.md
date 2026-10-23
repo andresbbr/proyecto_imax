@@ -217,7 +217,7 @@ Se elige PostgreSQL porque cumple todo lo que exige el modelo:
 - roles con permisos por tabla;
 - funciones y triggers en PL/pgSQL.
 
-Además es software libre y las dos nubes comparadas en la sección 4 lo ofrecen como servicio administrado. Para el desarrollo corre en Docker (versión 16.15, puerto 5433 del host).
+Además es software libre y las dos nubes comparadas en la sección 4 lo ofrecen como servicio administrado. El proyecto corre sobre PostgreSQL 16 instalado en el equipo (puerto 5432). Para un equipo sin PostgreSQL, `docker-compose.yml` levanta la misma versión (16.15) en un contenedor.
 
 ### 6.3.2 Scripts
 
@@ -230,10 +230,12 @@ Además es software libre y las dos nubes comparadas en la sección 4 lo ofrecen
 | `db/ddl/05_indices.sql` | Índices para las consultas frecuentes |
 | `db/ddl/06_roles.sql` | Los 5 roles y sus permisos |
 | `db/ddl/07_datos_base.sql` | Roles, tipos de zona y de tarifa, clasificaciones, géneros, métodos de pago y parámetros |
+| `db/ddl/08_usuario_app.sql` | Usuario de conexión de la aplicación (`imax_app`), sin permisos propios |
+| `db/crear_base.sql` | Usuario dueño `imax_owner` y base `imax`, en una instalación nueva; se ejecuta una vez con el superusuario |
 | `db/init.sql` | Ejecuta todo en orden |
 
 ```
-docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/init.sql
+psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/init.sql
 ```
 
 ### 6.3.3 Tipos de datos

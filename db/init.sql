@@ -2,7 +2,7 @@
 -- Crea la base de datos IMAX desde cero. Se puede ejecutar las veces que se quiera:
 -- borra y vuelve a crear los esquemas cine y bitacora.
 --
---   docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/init.sql
+--   psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/init.sql
 
 \set ON_ERROR_STOP on
 \set QUIET on

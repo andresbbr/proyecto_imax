@@ -3,7 +3,7 @@
 -- de los roles. Cada caso indica si debe aceptarse o rechazarse. Todo ocurre dentro de una
 -- transacción que se revierte al final, así que la base queda igual que antes.
 --
---   docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/tests/01_restricciones.sql
+--   psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f db/tests/01_restricciones.sql
 
 \set ON_ERROR_STOP on
 \pset footer off

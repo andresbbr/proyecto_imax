@@ -85,7 +85,7 @@ Una sola falla que agote el RTO de 5 minutos ya supera el presupuesto de un mes 
 
 ## 10.6 Prueba local de respaldo y restauración
 
-Para comprobar que un respaldo completo se puede restaurar, `scripts/respaldo_restauracion.sh` respalda la base de desarrollo con `pg_dump` y la restaura en una base nueva con `pg_restore`. Luego compara las filas de las 12 tablas principales y al final borra la copia. Salida real en `docs/evidencias/respaldo_restauracion_2026-10-23.txt`:
+Para comprobar que un respaldo completo se puede restaurar, `scripts/respaldo_restauracion.ps1` respalda la base de desarrollo con `pg_dump` y la restaura en una base nueva con `pg_restore`. Luego compara las filas de las 12 tablas principales y al final borra la copia. Salida real en `docs/evidencias/respaldo_restauracion_2026-10-23.txt`:
 
 | Medida | Resultado |
 |---|---|

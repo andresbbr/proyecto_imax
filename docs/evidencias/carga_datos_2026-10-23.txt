@@ -1,0 +1,150 @@
+Carga de datos de demostración y carga masiva
+Comando: docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/seed/cargar.sql
+Escala: 60 sedes sintéticas (más las 6 de demostración), 90 días de historia y 7 futuros, hasta 16 asientos vendidos por función
+Base: PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu
+
+inicio=2026-10-23 16:58:26 +0000
+Timing is on.
+SET
+Time: 0.148 ms
+Datos de demostración...
+INSERT 0 4
+Time: 1.293 ms
+INSERT 0 6
+Time: 1.681 ms
+INSERT 0 6
+Time: 1.751 ms
+INSERT 0 6
+Time: 1.307 ms
+INSERT 0 18
+Time: 4.590 ms
+INSERT 0 1200
+Time: 115.855 ms
+INSERT 0 6
+Time: 2.119 ms
+INSERT 0 12
+Time: 2.699 ms
+INSERT 0 19
+Time: 2.165 ms
+INSERT 0 144
+Time: 29.418 ms
+INSERT 0 2
+Time: 1.944 ms
+INSERT 0 336
+Time: 10.718 ms
+INSERT 0 6
+Time: 1.460 ms
+Carga masiva...
+Sedes, salas, zonas, asientos y puertas...
+INSERT 0 60
+Time: 1.870 ms
+INSERT 0 60
+Time: 1.400 ms
+SELECT 60
+Time: 1.794 ms
+INSERT 0 180
+Time: 18.173 ms
+INSERT 0 18000
+Time: 1688.189 ms (00:01.688)
+INSERT 0 60
+Time: 1.909 ms
+INSERT 0 1440
+Time: 276.110 ms
+Usuarios sintéticos...
+INSERT 0 50000
+Time: 394.965 ms
+INSERT 0 9
+Time: 1.098 ms
+Funciones: 5 por sala y día...
+INSERT 0 29100
+Time: 996.530 ms
+Ventas: asientos vendidos por función...
+SELECT 18000
+Time: 15.340 ms
+SELECT 234145
+Time: 2205.206 ms (00:02.205)
+ANALYZE
+Time: 53.745 ms
+SELECT 123935
+Time: 163.873 ms
+ANALYZE
+Time: 41.294 ms
+SELECT 234145
+Time: 34926.446 ms (00:34.926)
+CREATE INDEX
+Time: 25.862 ms
+CREATE INDEX
+Time: 82.001 ms
+ANALYZE
+Time: 49.099 ms
+ANALYZE
+Time: 77.894 ms
+Órdenes y líneas...
+INSERT 0 123935
+Time: 4257.890 ms (00:04.258)
+ setval 
+--------
+ 123935
+(1 row)
+
+Time: 0.909 ms
+INSERT 0 234145
+Time: 3613.057 ms (00:03.613)
+Pagos...
+INSERT 0 16109
+Time: 261.083 ms
+INSERT 0 123935
+Time: 2411.830 ms (00:02.412)
+Boletos, reembolsos, ocupación y check-in...
+INSERT 0 234145
+Time: 8561.429 ms (00:08.561)
+INSERT 0 2376
+Time: 745.066 ms
+INSERT 0 16780
+Time: 429.790 ms
+INSERT 0 204171
+Time: 3116.419 ms (00:03.116)
+Bitácoras...
+INSERT 0 140044
+Time: 559.006 ms
+INSERT 0 123935
+Time: 513.808 ms
+INSERT 0 234145
+Time: 1738.664 ms (00:01.739)
+INSERT 0 204171
+Time: 846.505 ms
+INSERT 0 6071
+Time: 212.929 ms
+INSERT 0 20000
+Time: 28590.208 ms (00:28.590)
+Actualizando estadísticas...
+ANALYZE
+Time: 2101.790 ms (00:02.102)
+Timing is off.
+Filas y tamaño por tabla:
+             tabla              | filas  | tamano_total | bytes_por_fila 
+--------------------------------+--------+--------------+----------------
+ cine.boleto                    | 234145 | 67 MB        |            301
+ bitacora.acceso_puerta_log     | 210242 | 43 MB        |            213
+ bitacora.transaccion_log       | 263979 | 39 MB        |            155
+ cine.pago                      | 140044 | 31 MB        |            232
+ bitacora.asiento_auditoria_log | 234145 | 26 MB        |            118
+ cine.orden                     | 123935 | 25 MB        |            214
+ cine.orden_detalle             | 234145 | 21 MB        |             94
+ cine.checkin                   | 204171 | 15 MB        |             75
+ cine.usuario                   |  50015 | 9760 kB      |            200
+ cine.funcion                   |  29436 | 5120 kB      |            178
+ bitacora.admin_operacion_audit |  20000 | 4920 kB      |            252
+ cine.asiento                   |  19200 | 2104 kB      |            112
+ cine.ocupacion_asiento         |  16780 | 1944 kB      |            119
+ cine.reembolso                 |   2376 | 432 kB       |            186
+ cine.sede                      |     66 | 64 kB        |            993
+ cine.sala                      |     66 | 48 kB        |            745
+(16 rows)
+
+ tamano_base_de_datos 
+----------------------
+ 361 MB
+(1 row)
+
+rc=0 fin=2026-10-23 17:00:05 +0000

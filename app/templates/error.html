@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block titulo %}Error {{ codigo }}{% endblock %}
+{% block contenido %}
+<h1>{% if codigo == 403 %}Acceso denegado{% else %}Error {{ codigo }}{% endif %}</h1>
+<p class="aviso error">{{ detalle }}</p>
+<p><a href="/">Volver a la cartelera</a></p>
+{% endblock %}

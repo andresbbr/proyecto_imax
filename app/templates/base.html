@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}IMAX{% endblock %}</title>
+  <link rel="stylesheet" href="/static/estilos.css">
+</head>
+<body>
+<header>
+  <a class="marca" href="/">IMAX</a>
+  <nav>
+    <a href="/">Cartelera</a>
+    {% if usuario %}
+      {% if usuario.rol == 'cliente' %}<a href="/mis-entradas">Mis entradas</a>{% endif %}
+      {% if usuario.rol == 'taquillero' %}<a href="/taquilla">Taquilla</a>{% endif %}
+      {% if usuario.rol == 'operador_puerta' %}<a href="/puerta">Puerta</a>{% endif %}
+      {% if usuario.rol in ('contador', 'administrador') %}<a href="/reportes">Reportes</a>{% endif %}
+      {% if usuario.rol == 'administrador' %}
+        <a href="/admin">Panel</a>
+        <a href="/admin/peliculas">Películas</a>
+        <a href="/admin/salas">Salas</a>
+        <a href="/admin/funciones">Funciones</a>
+        <a href="/admin/precios">Precios</a>
+        <a href="/admin/boletos">Boletos</a>
+        <a href="/admin/auditoria">Auditoría</a>
+      {% endif %}
+    {% endif %}
+  </nav>
+  <div class="sesion">
+    {% if usuario %}
+      <span>{{ usuario.nombre }} ({{ usuario.rol }})</span> <a href="/logout">Salir</a>
+    {% else %}
+      <a href="/login">Iniciar sesión</a>
+    {% endif %}
+  </div>
+</header>
+<main>
+  {% for aviso in avisos %}<p class="aviso {{ aviso.tipo }}">{{ aviso.texto }}</p>{% endfor %}
+  {% block contenido %}{% endblock %}
+</main>
+</body>
+</html>

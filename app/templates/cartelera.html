@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titulo %}Cartelera{% endblock %}
+{% block contenido %}
+<h1>Cartelera</h1>
+<form method="get" action="/" class="filtros">
+  <label>Ubicación
+    <select name="ciudad">
+      <option value="">Todas</option>
+      {% for c in ciudades %}<option value="{{ c.id_ciudad }}" {% if filtro.ciudad == c.id_ciudad|string %}selected{% endif %}>{{ c.nombre }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Fecha <input type="date" name="fecha" value="{{ filtro.fecha }}"></label>
+  <label>Género
+    <select name="genero">
+      <option value="">Todos</option>
+      {% for g in generos %}<option value="{{ g.id_genero }}" {% if filtro.genero == g.id_genero|string %}selected{% endif %}>{{ g.nombre }}</option>{% endfor %}
+    </select>
+  </label>
+  <button type="submit">Filtrar</button>
+  <a href="/">Limpiar</a>
+</form>
+
+{% if not peliculas %}<p>No hay funciones con esos filtros.</p>{% endif %}
+{% for p in peliculas %}
+<article class="pelicula" data-titulo="{{ p.titulo }}">
+  <div class="poster">{{ p.titulo }}</div>
+  <div>
+    <h2>{{ p.titulo }} <span class="etiqueta">{{ p.clasificacion }}</span></h2>
+    <p class="detalle">{{ p.generos }} · {{ p.duracion_min }} min</p>
+    <p>{{ p.sinopsis }}</p>
+    <table class="funciones">
+      <tr><th>Fecha y hora</th><th>Sede</th><th>Sala</th><th>Dirección</th><th>Idioma</th><th></th></tr>
+      {% for f in p.funciones %}
+      <tr>
+        <td>{{ f.inicio|hora }}</td><td>{{ f.sede }} ({{ f.ciudad }})</td><td>{{ f.sala }}</td>
+        <td>{{ f.direccion }}</td><td>{{ f.idioma }}</td>
+        <td><a class="boton" href="/funcion/{{ f.id_funcion }}">Elegir asientos</a></td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</article>
+{% endfor %}
+{% endblock %}

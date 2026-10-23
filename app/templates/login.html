@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block titulo %}Iniciar sesión{% endblock %}
+{% block contenido %}
+<h1>Iniciar sesión</h1>
+<form method="post" action="/login" class="formulario angosto">
+  <input type="hidden" name="siguiente" value="{{ siguiente }}">
+  <label>Correo <input type="email" name="email" required autofocus></label>
+  <label>Contraseña <input type="password" name="contrasena" required></label>
+  <button type="submit">Entrar</button>
+</form>
+{% endblock %}

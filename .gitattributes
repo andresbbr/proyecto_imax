@@ -1,0 +1,17 @@
+# Todo archivo de texto se normaliza a LF (los scripts con CRLF fallan dentro del contenedor)
+* text=auto eol=lf
+
+# Excepciones que Windows necesita con CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binarios
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.pdf  binary
+*.docx binary
+*.xlsx binary
+*.pptx binary
+*.zip  binary

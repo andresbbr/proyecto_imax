@@ -1,0 +1,34 @@
+# Secretos y configuración local
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node (mermaid-cli, Playwright)
+node_modules/
+playwright-report/
+test-results/
+
+# Datos de Docker (el volumen de Postgres es un volumen con nombre, pero por si acaso)
+pgdata/
+docker-data/
+
+# Temporales y archivos de bloqueo de Office
+*.tmp
+/tmp/
+~$*
+
+# Sistema operativo y editores
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/

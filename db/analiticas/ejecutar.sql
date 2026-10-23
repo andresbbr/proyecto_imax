@@ -30,13 +30,10 @@ select 'Recaudación: ventas de la función = pagos aprobados de sus órdenes',
      = (select coalesce(sum(p.monto), 0) from cine.pago p join cine.orden o on o.id_orden = p.id_orden
         where o.id_funcion = :id_funcion and p.estado = 'aprobado')
 union all
-select 'Top 5: ninguna película supera el total de boletos vigentes vendidos en la semana',
-       (select max(cnt) from (select count(*) as cnt from cine.orden o
-                              join cine.boleto b on b.id_orden = o.id_orden and b.estado = 'vigente'
-                              join cine.funcion f on f.id_funcion = o.id_funcion
-                              where o.estado = 'pagada' and o.pagada_en >= now() - interval '7 days'
-                              group by f.id_pelicula) x)
-    <= (select count(*) from cine.orden o join cine.boleto b on b.id_orden = o.id_orden and b.estado = 'vigente'
+select 'Top 5: los boletos de la semana coinciden con las órdenes pagadas en la semana',
+       (select count(*) from cine.boleto b
+        where b.estado = 'vigente' and b.emitido_en >= now() - interval '7 days')
+     = (select count(*) from cine.orden o join cine.boleto b on b.id_orden = o.id_orden and b.estado = 'vigente'
         where o.estado = 'pagada' and o.pagada_en >= now() - interval '7 days')
 union all
 select 'Métodos de pago: los porcentajes suman 100',

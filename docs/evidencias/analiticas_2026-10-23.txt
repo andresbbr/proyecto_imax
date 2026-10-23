@@ -1,5 +1,5 @@
 Consultas analíticas y comprobaciones
-Fecha: 2026-10-23 11:10:10 -0600
+Fecha: 2026-10-23 11:13:16 -0600
 Base: PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, con los datos de db/seed/cargar.sql
 Comando: docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiticas/ejecutar.sql
 
@@ -9,13 +9,13 @@ Comando: docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /d
         341 | Aventura en la selva | IMAX Sede 059 | Sala IMAX 1 | 2026-07-25 16:00:00+00 |       300 |       16 |                 5.33 |           286.58
 
 2. Top 5 de películas de la última semana
-      titulo       | boletos_vendidos | recaudacion_tarifas 
--------------------+------------------+---------------------
- Noche de risas    |             2185 |            25299.03
- Bosque de cristal |             2097 |            24981.97
- Ecos del pasado   |             2096 |            24672.14
- Dragones de hielo |             2044 |            24361.78
- Ruta en llamas    |             2041 |            24278.53
+      titulo       | boletos_vendidos 
+-------------------+------------------
+ Noche de risas    |             2185
+ Bosque de cristal |             2097
+ Ecos del pasado   |             2096
+ Dragones de hielo |             2044
+ Ruta en llamas    |             2041
 
 3. Métodos de pago preferidos
     metodo_pago     | pagos | porcentaje_pagos |   monto    | porcentaje_monto 
@@ -41,13 +41,13 @@ Comando: docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /d
       50013 | Administrador Sintético 7 |         623 |       101 |        118 |             102 |           302 | 2026-09-23 17:22:11.825483+00 | 2026-10-23 16:34:38.500589+00
 
 Comprobaciones
-                                   comprobacion                                    | cumple 
------------------------------------------------------------------------------------+--------
- Ocupación: los vendidos coinciden con las líneas de órdenes pagadas sin anular    | t
- Recaudación: ventas de la función = pagos aprobados de sus órdenes                | t
- Top 5: ninguna película supera el total de boletos vigentes vendidos en la semana | t
- Métodos de pago: los porcentajes suman 100                                        | t
- Métodos de pago: un pago aprobado por cada orden pagada con monto                 | t
- Auditoría: el total agrupado coincide con las operaciones del último mes          | t
+                                  comprobacion                                  | cumple 
+--------------------------------------------------------------------------------+--------
+ Ocupación: los vendidos coinciden con las líneas de órdenes pagadas sin anular | t
+ Recaudación: ventas de la función = pagos aprobados de sus órdenes             | t
+ Top 5: los boletos de la semana coinciden con las órdenes pagadas en la semana | t
+ Métodos de pago: los porcentajes suman 100                                     | t
+ Métodos de pago: un pago aprobado por cada orden pagada con monto              | t
+ Auditoría: el total agrupado coincide con las operaciones del último mes       | t
 
 Código de salida de psql: 0

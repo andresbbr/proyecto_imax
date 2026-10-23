@@ -1,4 +1,4 @@
-# 8. Pruebas de concurrencia y rendimiento
+# 8. Pruebas de concurrencia, rendimiento e interfaz
 
 Todas las cifras de esta sección salen de ejecuciones reales contra la base del proyecto (PostgreSQL 16.15), con los datos de `db/seed/cargar.sql`: unos 1.8 millones de filas, ver `docs/evidencias/carga_datos_2026-10-23.txt`.
 
@@ -65,3 +65,18 @@ docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiti
 - **Auditoría del último mes.** Lo que acelera esta consulta es el particionamiento por mes: PostgreSQL descarta las particiones de meses anteriores y solo lee las del último mes. El índice `ix_admin_audit_usuario_fecha` sirve para consultar el historial de un administrador en particular.
 
 **Escala.** Con el volumen de producción (15 millones de boletos al mes, sección 3) la diferencia crece: el costo de una lectura secuencial crece con el tamaño de la tabla, mientras que una búsqueda por índice depende sobre todo de cuántas filas devuelve. La carga de prueba se limitó a unos 1.8 millones de filas por la capacidad de disco del equipo de desarrollo; con más espacio se puede subir con `-v salas=... -v dias=...`.
+
+## 8.3 Pruebas de la interfaz
+
+`app/tests/test_gui.py` recorre los flujos de la pauta en Chromium con Playwright, sobre la aplicación corriendo y la base recién cargada. Salida real en `docs/evidencias/pruebas_gui_2026-10-23.txt`: 9 de 9 pruebas correctas.
+
+| Prueba | Qué comprueba |
+|---|---|
+| Cartelera filtrada | Con ciudad y género solo aparecen funciones de esa ciudad y ese género |
+| Pago rechazado | Aparece el temporizador; con la tarjeta 0002 la orden queda rechazada, sin boletos, y los asientos vuelven a verde (RN-05, RN-10, RN-11) |
+| Pago aprobado | Un QR por asiento; el formulario envía solo los últimos 4 dígitos y la marca (RN-09, RN-12) |
+| Dos navegadores | El asiento que bloquea un cliente se ve amarillo para otro en menos de 5 segundos (RN-03) |
+| Puerta | Primer escaneo permitido, segundo "Entrada ya utilizada", rechazo por otra función y por horario; los dos primeros quedan en `acceso_puerta_log` (RN-14, RN-15, RN-16) |
+| Acceso por rol | Taquillero y cliente reciben 403 en precios, salas y funciones (RN-17) |
+| Administración | Alta de película y función, traslape rechazado, sala con ventas no desactivable, cambio de precio y reembolso forzado registrados en la auditoría con responsable e IP (RN-18, RN-19, RN-20) |
+| Reportes | Las 4 consultas analíticas muestran resultados sin errores |

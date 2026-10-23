@@ -1,0 +1,23 @@
+Pruebas de la interfaz con Playwright (Chromium)
+Fecha: 2026-10-23 11:45:45 -0600
+Base recreada desde cero (docker compose down -v, up -d, init.sql, cargar.sql) y aplicación con: py -m uvicorn app.main:app --port 8000
+Comando: py -m pytest app/tests -v
+
+============================= test session starts =============================
+platform win32 -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- <ruta local>
+rootdir: <repositorio>
+plugins: anyio-4.15.1, playwright-0.10.0
+collecting ... collected 9 items
+
+app/tests/test_gui.py::test_cartelera_filtrada_por_ciudad_y_genero[chromium] PASSED [ 11%]
+app/tests/test_gui.py::test_pago_rechazado_libera_los_asientos[chromium] PASSED [ 22%]
+app/tests/test_gui.py::test_pago_aprobado_muestra_un_qr_por_asiento_y_no_envia_la_tarjeta[chromium] PASSED [ 33%]
+app/tests/test_gui.py::test_dos_navegadores_ven_el_bloqueo[chromium] PASSED [ 44%]
+app/tests/test_gui.py::test_puerta_un_solo_ingreso_y_rechazos[chromium] PASSED [ 55%]
+app/tests/test_gui.py::test_taquillero_y_cliente_no_entran_a_la_configuracion[chromium-taquilla@imax.demo] PASSED [ 66%]
+app/tests/test_gui.py::test_taquillero_y_cliente_no_entran_a_la_configuracion[chromium-cliente@imax.demo] PASSED [ 77%]
+app/tests/test_gui.py::test_administracion_queda_en_la_auditoria[chromium] PASSED [ 88%]
+app/tests/test_gui.py::test_reportes_muestran_las_cuatro_analiticas[chromium] PASSED [100%]
+
+============================= 9 passed in 11.39s ==============================
+Código de salida: 0

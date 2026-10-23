@@ -1,0 +1,53 @@
+Consultas analíticas y comprobaciones
+Fecha: 2026-10-23 11:10:10 -0600
+Base: PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, con los datos de db/seed/cargar.sql
+Comando: docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiticas/ejecutar.sql
+
+1. Ocupación y recaudación por función
+ id_funcion |        titulo        |     sede      |    sala     |         inicio         | capacidad | vendidos | porcentaje_ocupacion | ingresos_totales 
+------------+----------------------+---------------+-------------+------------------------+-----------+----------+----------------------+------------------
+        341 | Aventura en la selva | IMAX Sede 059 | Sala IMAX 1 | 2026-07-25 16:00:00+00 |       300 |       16 |                 5.33 |           286.58
+
+2. Top 5 de películas de la última semana
+      titulo       | boletos_vendidos | recaudacion_tarifas 
+-------------------+------------------+---------------------
+ Noche de risas    |             2185 |            25299.03
+ Bosque de cristal |             2097 |            24981.97
+ Ecos del pasado   |             2096 |            24672.14
+ Dragones de hielo |             2044 |            24361.78
+ Ruta en llamas    |             2041 |            24278.53
+
+3. Métodos de pago preferidos
+    metodo_pago     | pagos | porcentaje_pagos |   monto    | porcentaje_monto 
+--------------------+-------+------------------+------------+------------------
+ Tarjeta de crédito | 55405 |            44.94 | 1544535.75 |            44.90
+ Tarjeta de débito  | 30751 |            24.94 |  858097.55 |            24.94
+ PayPal             | 18479 |            14.99 |  516046.72 |            15.00
+ Billetera digital  | 12398 |            10.06 |  345275.69 |            10.04
+ Transferencia      |  6262 |             5.08 |  176201.30 |             5.12
+
+4. Auditoría de operaciones críticas del último mes
+ id_usuario |       administrador       | operaciones | cortesias | reembolsos | cambios_asiento | otros_cambios |            primera            |            ultima             
+------------+---------------------------+-------------+-----------+------------+-----------------+---------------+-------------------------------+-------------------------------
+      50015 | Administrador Sintético 9 |         716 |       108 |        136 |             111 |           361 | 2026-09-23 18:04:47.203102+00 | 2026-10-23 16:47:30.625173+00
+      50014 | Administrador Sintético 8 |         703 |       103 |        116 |             124 |           360 | 2026-09-23 18:48:59.383339+00 | 2026-10-23 16:55:54.370539+00
+      50008 | Administrador Sintético 2 |         689 |       103 |        108 |             115 |           363 | 2026-09-23 17:28:00.725058+00 | 2026-10-23 15:57:32.139262+00
+          6 | Fabián Jiménez            |         686 |       101 |        126 |             130 |           329 | 2026-09-23 17:28:39.048156+00 | 2026-10-23 16:48:18.429947+00
+      50012 | Administrador Sintético 6 |         685 |       130 |        101 |             122 |           332 | 2026-09-23 18:13:55.792733+00 | 2026-10-23 16:10:40.652519+00
+      50009 | Administrador Sintético 3 |         659 |       107 |        108 |             118 |           326 | 2026-09-23 17:59:49.184333+00 | 2026-10-23 16:31:51.366723+00
+      50007 | Administrador Sintético 1 |         650 |       117 |         97 |             112 |           324 | 2026-09-23 23:13:25.766954+00 | 2026-10-23 15:01:01.52401+00
+      50011 | Administrador Sintético 5 |         648 |        91 |        123 |             102 |           332 | 2026-09-23 18:08:19.96577+00  | 2026-10-23 16:05:42.640454+00
+      50010 | Administrador Sintético 4 |         635 |        92 |        106 |             115 |           322 | 2026-09-23 19:43:13.061001+00 | 2026-10-23 16:55:13.554386+00
+      50013 | Administrador Sintético 7 |         623 |       101 |        118 |             102 |           302 | 2026-09-23 17:22:11.825483+00 | 2026-10-23 16:34:38.500589+00
+
+Comprobaciones
+                                   comprobacion                                    | cumple 
+-----------------------------------------------------------------------------------+--------
+ Ocupación: los vendidos coinciden con las líneas de órdenes pagadas sin anular    | t
+ Recaudación: ventas de la función = pagos aprobados de sus órdenes                | t
+ Top 5: ninguna película supera el total de boletos vigentes vendidos en la semana | t
+ Métodos de pago: los porcentajes suman 100                                        | t
+ Métodos de pago: un pago aprobado por cada orden pagada con monto                 | t
+ Auditoría: el total agrupado coincide con las operaciones del último mes          | t
+
+Código de salida de psql: 0

@@ -119,7 +119,8 @@ create table cine.boleto (
     estado     text        not null default 'vigente' constraint ck_boleto_estado check (estado in ('vigente', 'anulado')),
     emitido_en timestamptz not null default now(),
     constraint uq_boleto_orden_asiento unique (id_orden, id_asiento),
-    foreign key (id_orden, id_asiento) references cine.orden_detalle
+    -- on update cascade: un cambio manual de asiento en la línea de la orden se refleja en el boleto
+    foreign key (id_orden, id_asiento) references cine.orden_detalle on update cascade
 );
 
 -- Segunda barrera contra la doble venta: un solo boleto vigente por asiento y función

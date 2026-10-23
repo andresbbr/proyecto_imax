@@ -26,5 +26,6 @@ set client_min_messages = warning;
 \ir funciones/04_acceso.sql
 \ir funciones/05_administracion.sql
 \ir funciones/06_permisos.sql
+\ir funciones/07_aplicacion.sql
 
 \echo 'Base de datos IMAX creada.'

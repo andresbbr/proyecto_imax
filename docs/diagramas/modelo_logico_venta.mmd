@@ -1,0 +1,175 @@
+%% Modelo lógico, esquema cine: Seguridad, venta, pago, emisión y acceso
+erDiagram
+    rol {
+        entero id_rol PK
+        texto codigo UK
+        texto nombre
+    }
+    usuario {
+        entero id_usuario PK
+        entero id_rol FK
+        entero id_sede FK
+        texto email UK
+        texto contrasena_hash
+        texto nombre
+        texto apellidos
+        fecha_hora creado_en
+        booleano es_activo
+    }
+    orden {
+        entero id_orden PK
+        entero id_funcion FK
+        texto canal
+        entero id_usuario_cliente FK
+        entero id_usuario_vendedor FK
+        texto estado
+        decimal subtotal
+        decimal descuento
+        decimal cargo_servicio
+        decimal impuesto
+        decimal total
+        fecha_hora creado_en
+        fecha_hora pagada_en
+    }
+    orden_detalle {
+        entero id_orden PK, FK
+        entero id_asiento PK, FK
+        entero id_tipo_tarifa FK
+        entero id_promocion FK
+        decimal precio_unitario
+        decimal descuento
+    }
+    ocupacion_asiento {
+        entero id_funcion PK, FK
+        entero id_asiento PK, FK
+        entero id_orden FK
+        entero id_usuario FK
+        texto estado
+        fecha_hora creado_en
+        fecha_hora expira_en
+    }
+    metodo_pago {
+        entero id_metodo_pago PK
+        texto codigo UK
+        texto nombre
+        booleano es_tarjeta
+    }
+    pago {
+        entero id_pago PK
+        entero id_orden FK
+        entero id_metodo_pago FK
+        decimal monto
+        texto estado
+        texto token_pasarela
+        texto codigo_autorizacion
+        texto motivo_rechazo
+        texto ultimos4
+        texto marca
+        fecha_hora solicitado_en
+        fecha_hora respondido_en
+    }
+    boleto {
+        entero id_boleto PK
+        entero id_orden FK
+        entero id_asiento FK
+        entero id_funcion FK
+        texto codigo_qr UK
+        texto estado
+        fecha_hora emitido_en
+    }
+    checkin {
+        entero id_boleto PK, FK
+        entero id_puerta FK
+        entero id_usuario_operador FK
+        fecha_hora validado_en
+    }
+    reembolso {
+        entero id_reembolso PK
+        entero id_boleto FK, UK
+        entero id_pago FK
+        entero id_usuario_autoriza FK
+        texto tipo
+        decimal monto
+        texto motivo
+        fecha_hora creado_en
+    }
+    funcion {
+        entero id_funcion PK
+        entero id_pelicula FK
+        entero id_sala FK
+        fecha_hora inicio
+        fecha_hora fin
+        texto idioma
+        texto estado
+        fecha_hora creado_en
+    }
+    asiento {
+        entero id_asiento PK
+        entero id_zona FK
+        texto fila
+        entero_corto numero
+        booleano es_habilitado
+    }
+    tipo_tarifa {
+        entero id_tipo_tarifa PK
+        texto codigo UK
+        texto nombre
+        booleano requiere_validacion_documento
+        booleano es_cortesia
+    }
+    promocion {
+        entero id_promocion PK
+        texto codigo UK
+        texto nombre
+        texto tipo
+        decimal porcentaje
+        entero id_tipo_tarifa FK
+        entero_corto dia_semana
+        fecha vigente_desde
+        fecha vigente_hasta
+        booleano es_activa
+    }
+    sede {
+        entero id_sede PK
+        entero id_ciudad FK
+        texto nombre UK
+        texto direccion
+        booleano es_activa
+    }
+    puerta {
+        entero id_puerta PK
+        entero id_sala FK
+        texto codigo UK
+        texto tipo
+        booleano es_activa
+    }
+    parametro_sistema {
+        texto clave PK
+        decimal valor
+        texto unidad
+        texto descripcion
+    }
+    tipo_tarifa |o--o{ promocion : "condiciona"
+    rol ||--o{ usuario : "asigna"
+    sede |o--o{ usuario : "emplea"
+    funcion ||--o{ orden : "vende"
+    usuario |o--o{ orden : "compra"
+    usuario |o--o{ orden : "vende en taquilla"
+    orden ||--|{ orden_detalle : "incluye 1 a 6"
+    asiento ||--o{ orden_detalle : "se vende en"
+    tipo_tarifa ||--o{ orden_detalle : "tarifa de"
+    promocion |o--o{ orden_detalle : "descuenta"
+    funcion ||--o{ ocupacion_asiento : "inventario de"
+    funcion ||--o{ boleto : "admite"
+    asiento ||--o{ ocupacion_asiento : "ocupado en"
+    orden |o--o{ ocupacion_asiento : "bloquea"
+    usuario ||--o{ ocupacion_asiento : "retiene"
+    orden ||--o{ pago : "se paga con"
+    metodo_pago ||--o{ pago : "usa"
+    orden_detalle ||--o| boleto : "emite"
+    boleto ||--o| checkin : "ingresa"
+    puerta ||--o{ checkin : "registra"
+    usuario |o--o{ checkin : "valida"
+    boleto ||--o| reembolso : "se reembolsa"
+    pago ||--o{ reembolso : "devuelve"
+    usuario ||--o{ reembolso : "autoriza"

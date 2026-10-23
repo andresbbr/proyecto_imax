@@ -1,0 +1,129 @@
+%% Modelo lógico, esquema cine: Ubicación, salas, catálogo, programación y precios
+erDiagram
+    pais {
+        entero id_pais PK
+        texto codigo_iso UK
+        texto nombre UK
+        decimal tasa_impuesto
+    }
+    ciudad {
+        entero id_ciudad PK
+        entero id_pais FK
+        texto nombre
+    }
+    sede {
+        entero id_sede PK
+        entero id_ciudad FK
+        texto nombre UK
+        texto direccion
+        booleano es_activa
+    }
+    sala {
+        entero id_sala PK
+        entero id_sede FK
+        texto nombre
+        texto formato
+        booleano es_activa
+    }
+    tipo_zona {
+        entero id_tipo_zona PK
+        texto codigo UK
+        texto nombre
+    }
+    zona {
+        entero id_zona PK
+        entero id_sala FK
+        entero id_tipo_zona FK
+        texto nombre
+    }
+    asiento {
+        entero id_asiento PK
+        entero id_zona FK
+        texto fila
+        entero_corto numero
+        booleano es_habilitado
+    }
+    puerta {
+        entero id_puerta PK
+        entero id_sala FK
+        texto codigo UK
+        texto tipo
+        booleano es_activa
+    }
+    clasificacion {
+        entero id_clasificacion PK
+        texto codigo UK
+        texto descripcion
+        entero_corto edad_minima
+    }
+    genero {
+        entero id_genero PK
+        texto nombre UK
+    }
+    pelicula {
+        entero id_pelicula PK
+        entero id_clasificacion FK
+        texto titulo
+        texto sinopsis
+        entero_corto duracion_min
+        texto poster_url
+        fecha fecha_estreno
+        booleano es_activa
+    }
+    pelicula_genero {
+        entero id_pelicula PK, FK
+        entero id_genero PK, FK
+    }
+    funcion {
+        entero id_funcion PK
+        entero id_pelicula FK
+        entero id_sala FK
+        fecha_hora inicio
+        fecha_hora fin
+        texto idioma
+        texto estado
+        fecha_hora creado_en
+    }
+    tipo_tarifa {
+        entero id_tipo_tarifa PK
+        texto codigo UK
+        texto nombre
+        booleano requiere_validacion_documento
+        booleano es_cortesia
+    }
+    tarifa {
+        entero id_tarifa PK
+        entero id_sede FK
+        entero id_tipo_zona FK
+        entero id_tipo_tarifa FK
+        texto tipo_dia
+        decimal precio
+    }
+    promocion {
+        entero id_promocion PK
+        texto codigo UK
+        texto nombre
+        texto tipo
+        decimal porcentaje
+        entero id_tipo_tarifa FK
+        entero_corto dia_semana
+        fecha vigente_desde
+        fecha vigente_hasta
+        booleano es_activa
+    }
+    pais ||--|{ ciudad : "tiene"
+    ciudad ||--|{ sede : "ubica"
+    sede ||--|{ sala : "contiene"
+    sala ||--|{ zona : "se divide en"
+    tipo_zona ||--o{ zona : "clasifica"
+    zona ||--|{ asiento : "agrupa"
+    sala ||--|{ puerta : "tiene"
+    clasificacion ||--o{ pelicula : "clasifica"
+    pelicula ||--|{ pelicula_genero : "tiene"
+    genero ||--o{ pelicula_genero : "agrupa"
+    pelicula ||--o{ funcion : "se proyecta en"
+    sala ||--o{ funcion : "aloja"
+    sede ||--o{ tarifa : "fija"
+    tipo_zona ||--o{ tarifa : "precio por"
+    tipo_tarifa ||--o{ tarifa : "precio por"
+    tipo_tarifa |o--o{ promocion : "condiciona"

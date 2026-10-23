@@ -1,0 +1,47 @@
+%% Modelo lógico, esquema bitacora: las 4 bitácoras (append-only, particionadas por mes, sin FK)
+erDiagram
+    transaccion_log {
+        entero id PK
+        fecha_hora ocurrido_en PK
+        entero id_orden
+        entero id_pago
+        entero id_boleto
+        texto evento
+        decimal monto
+        decimal impuesto
+        json detalle
+    }
+    asiento_auditoria_log {
+        entero id PK
+        fecha_hora ocurrido_en PK
+        entero id_funcion
+        entero id_asiento
+        entero id_orden
+        entero id_usuario
+        texto evento
+        json detalle
+    }
+    acceso_puerta_log {
+        entero id PK
+        fecha_hora ocurrido_en PK
+        texto codigo_qr_leido
+        entero id_boleto
+        entero id_puerta
+        entero id_funcion_en_curso
+        entero id_usuario_operador
+        texto resultado
+        texto mensaje
+    }
+    admin_operacion_audit {
+        entero id PK
+        fecha_hora ocurrido_en PK
+        entero id_usuario
+        entero id_rol
+        ip ip
+        texto operacion
+        texto entidad
+        texto id_entidad
+        json valores_anteriores
+        json valores_nuevos
+        texto motivo
+    }

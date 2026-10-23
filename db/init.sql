@@ -18,6 +18,7 @@ set client_min_messages = warning;
 \ir ddl/06_roles.sql
 \echo 'Cargando datos base...'
 \ir ddl/07_datos_base.sql
+\ir ddl/08_usuario_app.sql
 \echo 'Creando funciones, triggers y vistas...'
 \ir funciones/01_reglas.sql
 \ir funciones/02_vistas.sql

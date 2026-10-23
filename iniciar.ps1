@@ -10,7 +10,8 @@
 
 param([switch]$Reiniciar)
 
-$ErrorActionPreference = "Stop"
+# Los errores de psql se revisan con su código de salida: sus avisos en stderr no detienen el script
+$ErrorActionPreference = "Continue"
 Set-Location $PSScriptRoot
 
 function Paso($texto) { Write-Host "`n== $texto" -ForegroundColor Cyan }
@@ -35,8 +36,10 @@ $env:PGCLIENTENCODING = "UTF8"   # los scripts SQL están en UTF-8
 # psql: el del PATH o el de la instalación de PostgreSQL
 $psql = (Get-Command psql -ErrorAction SilentlyContinue).Source
 if (-not $psql) {
+    # Se prefiere el de PostgreSQL 16, la versión del servidor del proyecto
     $psql = Get-ChildItem "C:\Program Files\PostgreSQL\*\bin\psql.exe" -ErrorAction SilentlyContinue |
-        Sort-Object FullName | Select-Object -First 1 -ExpandProperty FullName
+        Sort-Object { $_.FullName -notlike "*\16\bin\*" }, FullName |
+        Select-Object -First 1 -ExpandProperty FullName
 }
 if (-not $psql) { throw "No se encontró psql. ¿Está instalado PostgreSQL 16?" }
 Write-Host "psql: $psql"

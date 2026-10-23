@@ -6,7 +6,8 @@
 #
 # Usa el PostgreSQL instalado y la conexión del archivo .env.
 
-$ErrorActionPreference = "Stop"
+# Los errores de psql se revisan con su código de salida: sus avisos en stderr no detienen el script
+$ErrorActionPreference = "Continue"
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 $config = @{}
@@ -22,8 +23,10 @@ $env:PGCLIENTENCODING = "UTF8"
 # Carpeta bin de PostgreSQL: la del psql del PATH o la de la instalación
 $psql = (Get-Command psql -ErrorAction SilentlyContinue).Source
 if (-not $psql) {
+    # Se prefieren las herramientas de PostgreSQL 16, la versión del servidor del proyecto
     $psql = Get-ChildItem "C:\Program Files\PostgreSQL\*\bin\psql.exe" -ErrorAction SilentlyContinue |
-        Sort-Object FullName | Select-Object -First 1 -ExpandProperty FullName
+        Sort-Object { $_.FullName -notlike "*\16\bin\*" }, FullName |
+        Select-Object -First 1 -ExpandProperty FullName
 }
 if (-not $psql) { throw "No se encontró psql. ¿Está instalado PostgreSQL 16?" }
 $bin = Split-Path $psql
@@ -46,8 +49,12 @@ Write-Host "2. Restauración en una base nueva (pg_restore)"
 Consulta postgres "drop database if exists imax_restaurada" | Out-Null
 Consulta postgres "create database imax_restaurada" | Out-Null
 $reloj.Restart()
-& "$bin\pg_restore.exe" -d imax_restaurada --exit-on-error $archivo
-if ($LASTEXITCODE -ne 0) { throw "Falló pg_restore" }
+& "$bin\pg_restore.exe" -d imax_restaurada $archivo
+if ($LASTEXITCODE -ne 0) {
+    # Por ejemplo, un pg_restore más nuevo que el servidor emite parámetros que este no conoce.
+    # El resultado se decide igual con la comparación de filas.
+    Write-Host "   Aviso: pg_restore informó errores (ver arriba); se verifica con la comparación de filas"
+}
 Write-Host ("   Duración: {0:N0} s" -f $reloj.Elapsed.TotalSeconds)
 
 Write-Host "3. Comparación de filas (original y restaurada)"

@@ -1,6 +1,6 @@
 # 6. Diseño de la base de datos
 
-Esta sección cubre el diseño conceptual (6.1) y el lógico (6.2). El diccionario completo de tablas y columnas, con todas sus claves y restricciones, está en la sección 7.
+Esta sección cubre el diseño conceptual (6.1), el lógico (6.2) y el físico (6.3). El diccionario completo de tablas y columnas, con todas sus claves y restricciones, está en la sección 7.
 
 ## 6.1 Diseño conceptual
 
@@ -203,3 +203,114 @@ Como el bloqueo y la venta viven en la misma fila, la misma restricción cubre l
 - **Datos personales del cliente.** Se limitan a lo necesario para la venta y el perfil: correo, nombre y apellidos.
 - **Contraseñas.** Se guardan solo como hash.
 - **Documento de identidad.** No se almacena: las tarifas especiales se validan físicamente en la puerta (RN-06).
+
+## 6.3 Diseño físico
+
+### 6.3.1 Sistema gestor: PostgreSQL 16
+
+Se elige PostgreSQL porque cumple todo lo que exige el modelo:
+
+- transacciones ACID con BEGIN, COMMIT y ROLLBACK;
+- restricciones de unicidad, también parciales (`WHERE estado = 'vigente'`);
+- CHECK y claves foráneas;
+- particionamiento por rango de fechas para las bitácoras;
+- roles con permisos por tabla;
+- funciones y triggers en PL/pgSQL.
+
+Además es software libre y las dos nubes comparadas en la sección 4 lo ofrecen como servicio administrado. Para el desarrollo corre en Docker (versión 16.15, puerto 5433 del host).
+
+### 6.3.2 Scripts
+
+| Script | Contenido |
+|---|---|
+| `db/ddl/01_esquemas.sql` | Esquemas `cine` y `bitacora`. Los borra y los crea de nuevo, por eso la inicialización se puede repetir. |
+| `db/ddl/02_tablas_catalogo.sql` | 17 tablas: ubicación, salas, catálogo, funciones, precios, promociones y parámetros |
+| `db/ddl/03_tablas_venta.sql` | 10 tablas: roles, usuarios, órdenes, inventario de asientos, pagos, boletos, check-in y reembolsos |
+| `db/ddl/04_bitacoras.sql` | Las 4 bitácoras particionadas por mes |
+| `db/ddl/05_indices.sql` | Índices para las consultas frecuentes |
+| `db/ddl/06_roles.sql` | Los 5 roles y sus permisos |
+| `db/ddl/07_datos_base.sql` | Roles, tipos de zona y de tarifa, clasificaciones, géneros, métodos de pago y parámetros |
+| `db/init.sql` | Ejecuta todo en orden |
+
+```
+docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/init.sql
+```
+
+### 6.3.3 Tipos de datos
+
+| Tipo lógico | Tipo en PostgreSQL | Uso |
+|---|---|---|
+| entero (clave) | `bigint generated always as identity` en tablas grandes; `integer` o `smallint` en catálogos | Claves primarias |
+| entero corto | `smallint` | Número de asiento, duración, días |
+| decimal(12,2) | `numeric(12,2)` | Precios y montos en USD, sin errores de redondeo |
+| fecha_hora | `timestamptz` con `default now()` | Horarios de funciones, bloqueos, pagos y bitácoras |
+| texto | `text` con `CHECK` para los estados | Nombres, estados, códigos |
+| texto(4) | `char(4)` con `CHECK (ultimos4 ~ '^[0-9]{4}$')` | Últimos 4 dígitos de tarjeta |
+| json | `jsonb` | Detalle de las bitácoras |
+| ip | `inet` | IP de la operación administrativa |
+
+En las bitácoras el `id` es `bigserial`, porque PostgreSQL 16 no admite columnas identity en tablas particionadas.
+
+### 6.3.4 Restricciones de integridad
+
+- **Doble venta.** La PRIMARY KEY `(id_funcion, id_asiento)` de `ocupacion_asiento` hace que una segunda transacción que intenta bloquear o vender el mismo asiento de la misma función reciba un error de clave duplicada y haga ROLLBACK. Como segunda barrera, el índice único parcial `uq_boleto_funcion_asiento_vigente` admite un solo boleto vigente por asiento y función.
+- **Un pago aprobado por orden.** Lo garantiza el índice único parcial `uq_pago_orden_aprobado`.
+- **Un ingreso por boleto.** Lo garantiza la PRIMARY KEY de `checkin`.
+- **CHECK.** Validan estados, montos no negativos, el total de la orden (`total = subtotal - descuento + cargo_servicio + impuesto`), que el bloqueo tenga fecha de expiración, que una orden en línea tenga cliente y una de taquilla tenga vendedor, el formato de los últimos 4 dígitos y que una función termine después de empezar. La lista completa está en la sección 7.
+- **Claves foráneas.** Rechazan el borrado de una fila referida. La excepción es `pelicula_genero`, que se borra junto con la película.
+- **Reglas que involucran varias tablas.** El no traslape de funciones, la emisión de boletos solo con la orden pagada y la protección de salas con ventas (RN-18) se implementan con triggers en `db/funciones`.
+
+### 6.3.5 Particionamiento de las bitácoras
+
+Las 4 bitácoras usan `PARTITION BY RANGE (ocurrido_en)` con una partición por mes, de noviembre de 2025 a diciembre de 2027, más una partición `DEFAULT` para fechas fuera de ese rango. Se crean con un bloque `DO` y nombres como `transaccion_log_2026_10`.
+
+Con particiones mensuales:
+
+- una consulta del último mes solo lee la partición de ese mes;
+- archivar las particiones de más de 13 meses (sección 3.8) consiste en separarlas de la tabla con `DETACH PARTITION` y exportarlas, sin borrar filas una por una.
+
+### 6.3.6 Índices
+
+PostgreSQL crea un índice para cada PRIMARY KEY y cada UNIQUE. Los de `db/ddl/05_indices.sql` cubren las búsquedas por clave foránea y por fecha:
+
+| Índice | Consulta que lo usa |
+|---|---|
+| `ix_funcion_inicio` | Cartelera: funciones programadas con inicio futuro (RN-01) |
+| `ix_funcion_sala_inicio` | Programación de una sala y control de traslapes |
+| `ix_sede_ciudad`, `ix_pelicula_genero_genero` | Filtros de cartelera por ubicación y género |
+| `ix_zona_sala`, `ix_asiento_zona` | Mapa de asientos de una sala |
+| `ix_ocupacion_expira` (parcial, solo bloqueos) | Barrido de bloqueos vencidos (RN-05) |
+| `ix_orden_funcion` | Ocupación y recaudación por función |
+| `ix_orden_pagada_en` | Top 5 de películas de la última semana |
+| `ix_orden_cliente` | Entradas del cliente (RN-13) |
+| `ix_pago_orden`, `ix_pago_metodo` | Pagos de una orden y métodos de pago preferidos |
+| `ix_admin_audit_usuario_fecha` | Auditoría del último mes agrupada por administrador |
+| `ix_acceso_puerta_boleto` | Historial de escaneos de un boleto |
+
+Los índices están en un script aparte para poder comparar los planes de `EXPLAIN ANALYZE` con y sin ellos (sección 8).
+
+### 6.3.7 Roles y permisos
+
+Se revoca todo a `PUBLIC` y cada rol recibe solo lo que indica la matriz de privilegio mínimo:
+
+| Objeto | rol_cliente | rol_taquillero | rol_operador_puerta | rol_contador | rol_administrador |
+|---|---|---|---|---|---|
+| Catálogo, salas, funciones, tarifas, promociones, parámetros | SELECT | SELECT | SELECT | SELECT | SELECT, INSERT, UPDATE, DELETE |
+| `ocupacion_asiento` (mapa) | SELECT | SELECT | | | SELECT |
+| `boleto`, `checkin` | | | SELECT | SELECT (boleto) | SELECT |
+| `orden`, `orden_detalle`, `pago`, `reembolso` | | | | SELECT | SELECT |
+| `usuario`, `rol` | | | | | SELECT |
+| `bitacora.transaccion_log` | | | | SELECT | SELECT |
+| Las otras 3 bitácoras | | | | | SELECT |
+
+Ningún rol tiene UPDATE ni DELETE sobre las bitácoras. Las operaciones que escriben (bloquear asientos, procesar el pago, emitir boletos, validar la entrada, reembolsar) y los registros en las bitácoras se hacen mediante funciones de la base de datos, y los roles solo reciben permiso para ejecutarlas.
+
+### 6.3.8 Pruebas de restricciones
+
+`db/tests/01_restricciones.sql` prueba 113 casos dentro de una transacción que se revierte al final:
+
+- inserciones válidas;
+- rechazos por PK, FK, UNIQUE, CHECK y NOT NULL;
+- el permiso de cada rol sobre las bitácoras y sobre la configuración.
+
+También intenta de verdad modificar una bitácora con el rol de administrador, y la base de datos lo rechaza. La salida real está en `docs/evidencias/pruebas_restricciones_2026-10-22.txt`: 113 de 113 correctas.

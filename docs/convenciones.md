@@ -34,8 +34,7 @@ Aplican a todo el repositorio. No se mezclan idiomas ni estilos.
 
 | Objeto | Patrón | Ejemplo |
 |---|---|---|
-| Llave primaria | `pk_<tabla>` | `pk_sala` |
-| Llave foránea | `fk_<tabla>_<referida>` | `fk_asiento_sala` |
+| Llave primaria y foránea | Nombre automático de PostgreSQL | `sala_pkey`, `zona_id_sala_fkey` |
 | Unicidad | `uq_<tabla>_<columnas>` | `uq_boleto_codigo_qr` |
 | Check | `ck_<tabla>_<regla>` | `ck_orden_total_coherente` |
 | Índice | `ix_<tabla>_<columnas>` | `ix_funcion_inicio` |

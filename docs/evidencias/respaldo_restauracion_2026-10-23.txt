@@ -1,0 +1,29 @@
+Prueba local de respaldo y restauración
+Fecha: 2026-10-23 11:54:28 -0600
+Comando: bash scripts/respaldo_restauracion.sh
+Base: datos de demostración y carga masiva (60 sedes, 90 días)
+
+1. Respaldo completo en formato comprimido (pg_dump -Fc)
+   Duración: 5 s
+   Tamaño de la base: 304 MB
+   Tamaño del respaldo: 41M
+2. Restauración en una base nueva (pg_restore)
+NOTICE:  database "imax_restaurada" does not exist, skipping
+   Duración: 7 s
+3. Comparación de filas (original y restaurada)
+   cine.funcion                          29438      29438  OK
+   cine.ocupacion_asiento                16659      16659  OK
+   cine.orden                           123614     123614  OK
+   cine.orden_detalle                   233484     233484  OK
+   cine.pago                            139557     139557  OK
+   cine.boleto                          233431     233431  OK
+   cine.checkin                         203803     203803  OK
+   cine.reembolso                         2296       2296  OK
+   bitacora.transaccion_log             263181     263181  OK
+   bitacora.asiento_auditoria_log       235243     235243  OK
+   bitacora.acceso_puerta_log           209854     209854  OK
+   bitacora.admin_operacion_audit        20008      20008  OK
+4. Limpieza
+   Base restaurada y archivo de respaldo eliminados
+RESULTADO: la restauración tiene las mismas filas que la base original
+Código de salida: 0

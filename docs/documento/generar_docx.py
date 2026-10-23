@@ -24,7 +24,7 @@ CARPETA = pathlib.Path(__file__).parent
 SALIDA = CARPETA / "documento_tecnico_imax.docx"
 FUENTE = "Arial"
 TAMANO = Pt(11)
-RAYA_LARGA = "—"
+RAYA_LARGA = chr(0x2014)  # raya larga (em dash), prohibida en el documento
 MARGEN_CM = 2.0
 ANCHO_UTIL_CM = 17.5  # carta (21.59 cm) menos los márgenes
 

@@ -1,5 +1,5 @@
 -- 01_datos_demo.sql
--- Datos pequeños para la demostración: 6 sedes con una sala IMAX cada una, 12 películas,
+-- Datos pequeños para la demostración: 6 sedes con una sala IMAX cada una (más una segunda sala en San José), 12 películas,
 -- la matriz de tarifas, 2 promociones, funciones para los próximos 14 días y un usuario
 -- por cada rol. Las fechas son relativas al día de la carga.
 --
@@ -38,6 +38,11 @@ join cine.ciudad ci on ci.nombre = s.ciudad;
 -- Una sala por sede: 10 filas de 20 asientos (A-D general, E-H preferencial, I-J VIP)
 insert into cine.sala (id_sede, nombre, formato)
 select id_sede, 'Sala IMAX 1', 'IMAX con láser' from cine.sede;
+
+-- Segunda sala en San José, sin funciones programadas: en la demostración el administrador
+-- crea ahí una función que empiece en pocos minutos para mostrar la validación en puerta.
+insert into cine.sala (id_sede, nombre, formato)
+select id_sede, 'Sala IMAX 2', 'IMAX digital' from cine.sede where nombre = 'IMAX San José';
 
 insert into cine.zona (id_sala, id_tipo_zona, nombre)
 select s.id_sala, tz.id_tipo_zona, tz.nombre
@@ -137,7 +142,8 @@ cross join lateral (
 ) as h
 join cine.pelicula p on p.id_pelicula = (select min(id_pelicula) from cine.pelicula)
                                          + ((s.id_sala * 5 + h.n) % (select count(*) from cine.pelicula))
-where h.inicio > now();
+where h.inicio > now()
+  and s.nombre = 'Sala IMAX 1';
 
 -- Usuarios de demostración, uno por rol ---------------------------------------------
 

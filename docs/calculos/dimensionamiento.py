@@ -2,7 +2,8 @@
 
 Con los datos del enunciado y los supuestos del equipo calcula:
 - el reparto del pico de 50,000 TPS entre lecturas y escrituras,
-- las filas esperadas por tabla y el almacenamiento mensual y a 5 años.
+- las filas esperadas por tabla y el almacenamiento mensual y a 5 años,
+- los volúmenes que se usan en el estimado de costos cloud.
 
 Uso:
     py docs/calculos/dimensionamiento.py
@@ -70,6 +71,11 @@ SUPUESTOS = {
     "fraccion_cacheable_sin_compra": (0.4, "Parte de esas lecturas es cartelera"),
     "acierto_cache": (0.95, "Cartelera y detalle servidos por CDN y caché"),
     "segundos_bloqueo": (120, "Bloqueo temporal de 2 minutos (RN-05)"),
+    # Volúmenes para el estimado de costos
+    "anios_costos": (3, "Horizonte de la proyección financiera"),
+    "recursos_estaticos_por_compra": (20, "Pósteres, estilos y scripts que el navegador no tiene en caché"),
+    "kib_respuesta_api": (4, "JSON de cartelera, mapa y confirmación"),
+    "kib_recurso_estatico": (50, "Pósteres comprimidos y recursos de la interfaz"),
 }
 S = {k: v[0] for k, v in SUPUESTOS.items()}
 
@@ -181,6 +187,16 @@ tb_niveles_archivo = bitacoras_comprimidas(meses_total - en_linea) / 1000
 tb_respaldos = sum(sum(bytes_una_copia(t, filas(t, m), False) for t in TABLAS)
                    for m in range(1, meses_total + 1)) / S["compresion_respaldo"] / TB
 
+# Volúmenes para el estimado de costos (al cierre del año 3)
+meses_c = S["anios_costos"] * 12
+sol_api = ordenes_mes * ops_por_compra
+sol_estaticas = ordenes_mes * S["recursos_estaticos_por_compra"]
+salida_gb = (sol_api * S["kib_respuesta_api"] + sol_estaticas * S["kib_recurso_estatico"]) * 1024 / GB
+bd_gb_por_copia = sum(bytes_una_copia(t, por_mes[t] * en_linea) if TABLAS[t][2] == "bitacora"
+                      else bytes_una_copia(t, filas(t, meses_c)) for t in TABLAS) / GB
+logs_caliente_gb = bitacoras_comprimidas(en_linea)
+logs_archivo_gb = sum(bitacoras_comprimidas(max(0, m - en_linea)) for m in range(1, meses_c + 1)) / meses_c
+
 # ---------------------------------------------------------------------------
 # Salida
 # ---------------------------------------------------------------------------
@@ -246,6 +262,13 @@ tabla("Resumen de almacenamiento", ["Concepto", "Valor"], [
     ["En niveles: archivo comprimido de bitácoras (TB)", n(tb_niveles_archivo, 2)],
     ["Referencia: respaldos completos mensuales retenidos 5 años, comprimidos (TB)", n(tb_respaldos, 2)],
     ["Acumulado con copias frente a los 45 TB del enunciado", n(tb_anio[-1] / REFERENCIA_TB, 2) + " veces"],
+])
+tabla("Volúmenes para el estimado de costos (hoja Supuestos)", ["Celda", "Concepto", "Valor", "Unidad"], [
+    ["B9", "Solicitudes mensuales al borde (API + recursos estáticos)", n((sol_api + sol_estaticas) / 10**6, 1), "millones/mes"],
+    ["B10", "Salida de datos a clientes", n(salida_gb / 1024, 2), "TB/mes (1 TB = 1,024 GB)"],
+    ["B13", f"BD por copia al cierre del año {S['anios_costos']}, con niveles", n(bd_gb_por_copia), "GB"],
+    ["B23", f"Logs en capa caliente: copia comprimida de {en_linea} meses", n(logs_caliente_gb), "GB"],
+    ["B24", f"Logs en capa de archivo: promedio de {S['anios_costos']} años", n(logs_archivo_gb), "GB"],
 ])
 
 ruta = pathlib.Path(__file__).with_name("dimensionamiento.md")

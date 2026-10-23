@@ -40,6 +40,10 @@ Generado el 2026-10-22 con `py docs/calculos/dimensionamiento.py`.
 | fraccion_cacheable_sin_compra | 0.4 | Parte de esas lecturas es cartelera |
 | acierto_cache | 0.95 | Cartelera y detalle servidos por CDN y caché |
 | segundos_bloqueo | 120 | Bloqueo temporal de 2 minutos (RN-05) |
+| anios_costos | 3 | Horizonte de la proyección financiera |
+| recursos_estaticos_por_compra | 20 | Pósteres, estilos y scripts que el navegador no tiene en caché |
+| kib_respuesta_api | 4 | JSON de cartelera, mapa y confirmación |
+| kib_recurso_estatico | 50 | Pósteres comprimidos y recursos de la interfaz |
 
 ## Tamaño de fila por tabla
 
@@ -179,3 +183,13 @@ Generado el 2026-10-22 con `py docs/calculos/dimensionamiento.py`.
 | En niveles: archivo comprimido de bitácoras (TB) | 0.16 |
 | Referencia: respaldos completos mensuales retenidos 5 años, comprimidos (TB) | 11.02 |
 | Acumulado con copias frente a los 45 TB del enunciado | 0.13 veces |
+
+## Volúmenes para el estimado de costos (hoja Supuestos)
+
+| Celda | Concepto | Valor | Unidad |
+|---|---|---|---|
+| B9 | Solicitudes mensuales al borde (API + recursos estáticos) | 597.9 | millones/mes |
+| B10 | Salida de datos a clientes | 7.91 | TB/mes (1 TB = 1,024 GB) |
+| B13 | BD por copia al cierre del año 3, con niveles | 497 | GB |
+| B23 | Logs en capa caliente: copia comprimida de 13 meses | 43 | GB |
+| B24 | Logs en capa de archivo: promedio de 3 años | 26 | GB |

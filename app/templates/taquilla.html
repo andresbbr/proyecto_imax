@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block titulo %}Taquilla{% endblock %}
+{% block contenido %}
+<h1>Taquilla</h1>
+<h2>Corte de caja de hoy ({{ hoy.strftime('%d/%m/%Y') }})</h2>
+<div class="tarjetas">
+  <div class="tarjeta">Órdenes<b>{{ corte.ordenes }}</b></div>
+  <div class="tarjeta">Boletos<b>{{ corte.boletos }}</b></div>
+  <div class="tarjeta">Total cobrado (USD)<b>{{ corte.total|dinero }}</b></div>
+</div>
+<h2>Funciones de mi sede (próximos 3 días)</h2>
+<table>
+  <tr><th>Fecha y hora</th><th>Película</th><th>Sala</th><th>Idioma</th><th></th></tr>
+  {% for f in funciones %}
+  <tr><td>{{ f.inicio|hora }}</td><td>{{ f.titulo }}</td><td>{{ f.sala }}</td><td>{{ f.idioma }}</td>
+      <td><a class="boton" href="/funcion/{{ f.id_funcion }}">Vender</a></td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

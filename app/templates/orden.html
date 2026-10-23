@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block titulo %}Orden {{ orden.id_orden }}{% endblock %}
+{% block contenido %}
+<h1>Orden {{ orden.id_orden }}</h1>
+<p class="detalle">{{ orden.funcion.titulo }} · {{ orden.funcion.inicio|hora }} · {{ orden.funcion.sede }}, {{ orden.funcion.sala }}</p>
+
+{% if orden.estado == 'pendiente' %}
+  <p>Tiempo para pagar: <span id="temporizador" class="temporizador" data-expira="{{ orden.expira_en }}">--:--</span></p>
+{% else %}
+  <p class="aviso error">Esta orden está {{ orden.estado }}. <a href="/funcion/{{ orden.id_funcion }}">Volver a elegir asientos</a></p>
+{% endif %}
+
+<h2>Entradas</h2>
+<table>
+  <tr><th>Asiento</th><th>Zona</th><th>Tipo de entrada</th><th>Precio</th><th>Descuento</th><th>Promoción</th></tr>
+  {% for l in orden.lineas %}
+  <tr>
+    <td>{{ l.fila }}{{ l.numero }}</td>
+    <td>{{ l.zona }}</td>
+    <td>
+      {% if orden.estado == 'pendiente' %}
+      <form method="post" action="/orden/{{ orden.id_orden }}/tarifa" class="fila-form">
+        <input type="hidden" name="id_asiento" value="{{ l.id_asiento }}">
+        <select name="tipo" onchange="this.form.submit()">
+          {% for t in tarifas %}<option value="{{ t.codigo }}" {% if t.codigo == l.tipo_tarifa %}selected{% endif %}>{{ t.nombre }}</option>{% endfor %}
+        </select>
+      </form>
+      {% else %}{{ l.tarifa }}{% endif %}
+    </td>
+    <td>{{ l.precio|dinero }}</td>
+    <td>{{ l.descuento|dinero }}</td>
+    <td>{{ l.promocion or '' }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>Desglose</h2>
+<table class="angosta">
+  <tr><td>Tarifas</td><td>{{ orden.subtotal|dinero }}</td></tr>
+  <tr><td>Descuentos</td><td>-{{ orden.descuento|dinero }}</td></tr>
+  <tr><td>Cargo por servicio</td><td>{{ orden.cargo_servicio|dinero }}</td></tr>
+  <tr><td>Impuesto</td><td>{{ orden.impuesto|dinero }}</td></tr>
+  <tr><th>Total (USD)</th><th id="total">{{ orden.total|dinero }}</th></tr>
+</table>
+
+{% if orden.estado == 'pendiente' %}
+<h2>Pago simulado</h2>
+<form id="pago" method="post" action="/orden/{{ orden.id_orden }}/pagar" class="formulario angosto">
+  <label>Método de pago
+    <select name="metodo" id="metodo">
+      {% for m in metodos %}<option value="{{ m.codigo }}" data-tarjeta="{{ 'si' if m.es_tarjeta else 'no' }}">{{ m.nombre }}</option>{% endfor %}
+    </select>
+  </label>
+  <div id="datos-tarjeta">
+    <label>Número de tarjeta
+      <!-- Sin atributo name: el número completo nunca se envía al servidor (RN-09) -->
+      <input id="numero-tarjeta" inputmode="numeric" autocomplete="off" placeholder="4242 4242 4242 4242">
+    </label>
+    <p class="detalle">Pago simulado: una tarjeta que termina en 0002 es rechazada.</p>
+  </div>
+  <input type="hidden" name="ultimos4" id="ultimos4">
+  <input type="hidden" name="marca" id="marca">
+  <button type="submit" id="pagar">Pagar {{ orden.total|dinero }} USD</button>
+</form>
+<form method="post" action="/orden/{{ orden.id_orden }}/liberar">
+  <button type="submit" class="secundario">Cancelar y liberar asientos</button>
+</form>
+<script src="/static/orden.js"></script>
+{% endif %}
+{% endblock %}

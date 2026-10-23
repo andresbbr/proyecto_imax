@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titulo %}Asientos · {{ funcion.titulo }}{% endblock %}
+{% block contenido %}
+<h1>{{ funcion.titulo }}</h1>
+<p class="detalle">{{ funcion.inicio|hora }} · {{ funcion.sede }}, {{ funcion.sala }} · {{ funcion.direccion }} · {{ funcion.idioma }}</p>
+
+<div class="leyenda">
+  <span class="disponible">Disponible</span>
+  <span class="ocupado">Ocupado</span>
+  <span class="bloqueado">Bloqueado temporalmente</span>
+  <span class="seleccionado">Seleccionado</span>
+  <span class="reservado">Reservado</span>
+</div>
+
+<div class="pantalla">PANTALLA</div>
+<div id="mapa" class="mapa" data-funcion="{{ funcion.id_funcion }}" data-maximo="{{ maximo }}"></div>
+
+<p>Seleccionados: <b id="cantidad">0</b> de {{ maximo }} como máximo.
+  <button id="bloquear" disabled>Bloquear asientos y continuar</button>
+</p>
+<p id="mensaje" class="aviso error" hidden></p>
+<script src="/static/mapa.js"></script>
+{% endblock %}

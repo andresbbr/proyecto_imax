@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}Mis entradas{% endblock %}
+{% block contenido %}
+<h1>Mis entradas</h1>
+{% if not entradas %}<p>Todavía no tiene entradas.</p>{% endif %}
+<div class="boletos">
+  {% for e in entradas %}
+  <div class="boleto">
+    <b>{{ e.titulo }}</b><br>
+    {{ e.inicio|hora }}<br>
+    {{ e.sede }}, {{ e.sala }} · Asiento {{ e.fila }}{{ e.numero }} ({{ e.zona }})<br>
+    {{ e.tipo_tarifa }} · <b>{{ e.estado }}</b>
+    {% if e.qr %}{{ e.qr|safe }}{% endif %}
+    <div class="codigo">{{ e.codigo_qr }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

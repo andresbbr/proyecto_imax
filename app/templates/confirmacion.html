@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block titulo %}Confirmación · Orden {{ orden.id_orden }}{% endblock %}
+{% block contenido %}
+<h1>Compra confirmada</h1>
+<p class="detalle">Orden {{ orden.id_orden }} · {{ orden.funcion.titulo }} · {{ orden.funcion.inicio|hora }} · {{ orden.funcion.sede }}, {{ orden.funcion.sala }} · Total {{ orden.total|dinero }} USD</p>
+<div class="boletos">
+  {% for b in boletos %}
+  <div class="boleto">
+    <b>{{ orden.funcion.titulo }}</b><br>
+    Asiento {{ b.fila }}{{ b.numero }} · {{ b.zona }}<br>
+    {{ b.tarifa }} · {{ b.estado }}
+    {{ b.qr|safe }}
+    <div class="codigo">{{ b.codigo_qr }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% if usuario.rol == 'cliente' %}<p><a href="/mis-entradas">Ver todas mis entradas</a></p>{% endif %}
+{% if usuario.rol == 'taquillero' %}<p><a href="/taquilla">Volver a la taquilla</a></p>{% endif %}
+{% endblock %}

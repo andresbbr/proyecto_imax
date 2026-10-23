@@ -36,8 +36,8 @@ def leer_env():
 
 ENV = leer_env()
 CONEXION = {
-    "host": "localhost",
-    "port": ENV.get("POSTGRES_PORT", "5433"),
+    "host": ENV.get("POSTGRES_HOST", "localhost"),
+    "port": ENV.get("POSTGRES_PORT", "5432"),
     "dbname": ENV["POSTGRES_DB"],
     "user": ENV["POSTGRES_USER"],
     "password": ENV["POSTGRES_PASSWORD"],

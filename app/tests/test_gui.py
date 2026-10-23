@@ -29,7 +29,8 @@ HORA_LOCAL = datetime.timezone(datetime.timedelta(hours=-6))
 
 def sql(consulta, parametros=()):
     """Consulta directa como dueño de la base, solo para preparar y revisar datos de prueba."""
-    with psycopg.connect(host="localhost", port=config.ENV.get("POSTGRES_PORT", "5433"),
+    with psycopg.connect(host=config.ENV.get("POSTGRES_HOST", "localhost"),
+                         port=config.ENV.get("POSTGRES_PORT", "5432"),
                          dbname=config.ENV.get("POSTGRES_DB", "imax"), user=config.ENV["POSTGRES_USER"],
                          password=config.ENV["POSTGRES_PASSWORD"], autocommit=True) as con:
         cur = con.execute(consulta, parametros)

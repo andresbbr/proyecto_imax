@@ -24,7 +24,7 @@ ENV = _leer_env()
 # La aplicación se conecta siempre como imax_app y cambia al rol del usuario en cada petición
 CONEXION = make_conninfo(
     host=ENV.get("POSTGRES_HOST", "localhost"),
-    port=ENV.get("POSTGRES_PORT", "5433"),
+    port=ENV.get("POSTGRES_PORT", "5432"),
     dbname=ENV.get("POSTGRES_DB", "imax"),
     user="imax_app",
     password=ENV.get("APP_DB_PASSWORD", ""),

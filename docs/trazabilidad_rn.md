@@ -4,7 +4,7 @@ Relaciona cada regla de negocio (RN) del enunciado con su mecanismo en la base d
 
 Estados: `Pendiente`, `Diseñada`, `Implementada`, `Probada` (prueba positiva y negativa en verde).
 
-Las pruebas se identifican como `T-RNxx-P` (positiva: el caso válido se acepta) y `T-RNxx-N` (negativa: el caso inválido se rechaza). Están en `db/tests/02_reglas.sql`; las restricciones del DDL se prueban además en `db/tests/01_restricciones.sql`. Salidas reales: `docs/evidencias/pruebas_reglas_2026-10-23.txt` y `docs/evidencias/pruebas_restricciones_2026-10-23.txt`.
+Las pruebas se identifican como `T-RNxx-P` (positiva: el caso válido se acepta) y `T-RNxx-N` (negativa: el caso inválido se rechaza). Están en `db/tests/02_reglas.sql`; las restricciones del DDL se prueban además en `db/tests/01_restricciones.sql`. Salidas reales: `docs/evidencias/pruebas_reglas_2026-10-23.txt` y `docs/evidencias/pruebas_restricciones_2026-10-23.txt`. La prevención de la doble venta (RN-05, RN-12) se prueba además con `scripts/concurrencia.py`: 50 corridas con 20 y 50 solicitudes simultáneas por el mismo asiento, con exactamente 1 ganador en cada una (`docs/evidencias/concurrencia_2026-10-23.txt`).
 
 ## 1. Reglas de negocio
 

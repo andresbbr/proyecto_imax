@@ -271,23 +271,22 @@ Con particiones mensuales:
 
 ### 6.3.6 Índices
 
-PostgreSQL crea un índice para cada PRIMARY KEY y cada UNIQUE. Los de `db/ddl/05_indices.sql` cubren las búsquedas por clave foránea y por fecha:
+PostgreSQL crea un índice para cada PRIMARY KEY y cada UNIQUE, y ese índice también sirve para buscar por su primera columna. Por eso no hay índices aparte sobre `zona(id_sala)` ni `asiento(id_zona)`: los cubren `uq_zona_sala_nombre (id_sala, nombre)` y `uq_asiento_zona_fila_numero (id_zona, fila, numero)`. Los 11 índices de `db/ddl/05_indices.sql` cubren las demás búsquedas por clave foránea y por fecha:
 
 | Índice | Consulta que lo usa |
 |---|---|
 | `ix_funcion_inicio` | Cartelera: funciones programadas con inicio futuro (RN-01) |
-| `ix_funcion_sala_inicio` | Programación de una sala y control de traslapes |
+| `ix_funcion_sala_inicio` | Funciones de una sala con sus asientos libres, programación y control de traslapes |
 | `ix_sede_ciudad`, `ix_pelicula_genero_genero` | Filtros de cartelera por ubicación y género |
-| `ix_zona_sala`, `ix_asiento_zona` | Mapa de asientos de una sala |
 | `ix_ocupacion_expira` (parcial, solo bloqueos) | Barrido de bloqueos vencidos (RN-05) |
 | `ix_orden_funcion` | Ocupación y recaudación por función |
-| `ix_orden_pagada_en` | Top 5 de películas de la última semana |
+| `ix_boleto_emitido_en` | Top 5 de películas de la última semana |
 | `ix_orden_cliente` | Entradas del cliente (RN-13) |
-| `ix_pago_orden`, `ix_pago_metodo` | Pagos de una orden y métodos de pago preferidos |
-| `ix_admin_audit_usuario_fecha` | Auditoría del último mes agrupada por administrador |
+| `ix_pago_orden` | Pagos de una orden |
+| `ix_admin_audit_usuario_fecha` | Historial de operaciones de un administrador |
 | `ix_acceso_puerta_boleto` | Historial de escaneos de un boleto |
 
-Los índices están en un script aparte para poder comparar los planes de `EXPLAIN ANALYZE` con y sin ellos (sección 8).
+Los índices están en un script aparte para poder comparar los planes de `EXPLAIN ANALYZE` con y sin ellos. La comparación está en la sección 8.2: la consulta de métodos de pago recorre todos los pagos y no usa índice, y la auditoría del último mes se acelera con la poda de particiones.
 
 ### 6.3.7 Roles y permisos
 

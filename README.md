@@ -67,6 +67,24 @@ docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/tests/0
 
 La primera prueba las restricciones y los permisos; la segunda, las reglas de negocio RN-01 a RN-20. Las dos corren dentro de una transacción que se revierte al final, así que no dejan datos.
 
+### Concurrencia, analíticas y planes de ejecución
+
+La prueba de concurrencia necesita Python con las dependencias de `requirements.txt`:
+
+```powershell
+py -m pip install -r requirements.txt
+py scripts/concurrencia.py
+```
+
+Lanza 25 corridas con 20 y con 50 solicitudes simultáneas por el mismo asiento y verifica que en cada una haya exactamente un ganador.
+
+```powershell
+docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiticas/ejecutar.sql
+docker exec imax_db psql -U imax_owner -d imax -v ON_ERROR_STOP=1 -f /db/analiticas/explain_indices.sql
+```
+
+El primero corre las 4 consultas analíticas y sus comprobaciones. El segundo muestra los planes de `EXPLAIN (ANALYZE, BUFFERS)` sin y con los índices, y al final deja los índices creados.
+
 ### Reiniciar desde cero
 
 Borra el volumen con los datos y vuelve a crear la base vacía:
